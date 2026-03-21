@@ -44,6 +44,10 @@ const (
 	TokenTypeLBrace TokenType = "{"
 	// TokenTypeRBrace represents the right brace token.
 	TokenTypeRBrace TokenType = "}"
+	// TokenTypeEquality represents the equality operator token.
+	TokenTypeEquality TokenType = "=="
+	// TokenTypeNotEqual represents the not equal operator token.
+	TokenTypeNotEqual TokenType = "!="
 
 	///////////////
 	// keywords //
@@ -74,6 +78,8 @@ var keywords = map[string]TokenType{
 	"elif":   TokenTypeElif,
 	"else":   TokenTypeElse,
 	"return": TokenTypeReturn,
+	"true":   TokenTypeTrue,
+	"false":  TokenTypeFalse,
 }
 
 // LookupIdent checks if the given identifier is a keyword and returns the appropriate token type.
