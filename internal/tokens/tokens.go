@@ -10,6 +10,8 @@ const (
 	TokenTypeIdent TokenType = "IDENT"
 	// TokenTypeInt represents an integer token.
 	TokenTypeInt TokenType = "INT"
+	// TokenTypeString represents a string token.
+	TokenTypeString TokenType = "STRING"
 
 	///////////////////////////
 	// Symbols and operators //
@@ -27,14 +29,6 @@ const (
 	TokenTypeAsterisk TokenType = "*"
 	// TokenTypeForwardSlash represents the division operator token.
 	TokenTypeForwardSlash TokenType = "/"
-	// TokenTypeLT represents the less than operator token.
-	TokenTypeLT TokenType = "<"
-	// TokenTypeLTEQ represents the less than or equal to operator token.
-	TokenTypeLTEQ TokenType = "<="
-	// TokenTypeGTEQ represents the greater than or equal to operator token.
-	TokenTypeGTEQ TokenType = ">="
-	// TokenTypeGT represents the greater than operator token.
-	TokenTypeGT TokenType = ">"
 	// TokenTypeComma represents the comma token.
 	TokenTypeComma TokenType = ","
 	// TokenTypeSemicolon represents the semicolon token.
@@ -52,6 +46,16 @@ const (
 	TokenTypeEq TokenType = "=="
 	// TokenTypeNotEq represents the not equal operator token.
 	TokenTypeNotEq TokenType = "!="
+	// TokenTypeLT represents the less than operator token.
+	TokenTypeLT TokenType = "<"
+	// TokenTypeLTEQ represents the less than or equal to operator token.
+	TokenTypeLTEQ TokenType = "<="
+	// TokenTypeGTEQ represents the greater than or equal to operator token.
+	TokenTypeGTEQ TokenType = ">="
+	// TokenTypeGT represents the greater than operator token.
+	TokenTypeGT TokenType = ">"
+	// TokenTypeSpeechMarks represents the speech marks token used for opening string literals.
+	TokenTypeSpeechMarks TokenType = `"`
 
 	///////////////
 	// keywords //

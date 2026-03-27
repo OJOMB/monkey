@@ -200,3 +200,41 @@ func TestNextToken1(t *testing.T) {
 		assert.Equal(t, tc.expectedOutput, toks, "test case %d failed", i)
 	}
 }
+
+func TestStringLiteral(t *testing.T) {
+	type testCase struct {
+		name           string
+		input          string
+		expectedOutput []tokens.Token
+	}
+
+	var testCases = []testCase{
+		{
+			name:  "test string literal token",
+			input: `let myString = "foobar";`,
+			expectedOutput: []tokens.Token{
+				{Type: tokens.TokenTypeLet, Lexeme: "let"},
+				{Type: tokens.TokenTypeIdent, Lexeme: "myString"},
+				{Type: tokens.TokenTypeAssign, Lexeme: "="},
+				{Type: tokens.TokenTypeString, Lexeme: "foobar"},
+				{Type: tokens.TokenTypeSemicolon, Lexeme: ";"},
+				{Type: tokens.TokenTypeEOF, Lexeme: ""},
+			},
+		},
+	}
+
+	for i, tc := range testCases {
+		lex := New(tc.input)
+
+		var toks []tokens.Token
+		for {
+			tok := lex.NextToken()
+			toks = append(toks, tok)
+			if tok.Type == tokens.TokenTypeEOF {
+				break
+			}
+		}
+
+		assert.Equal(t, tc.expectedOutput, toks, "test case %d failed", i)
+	}
+}

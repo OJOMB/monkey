@@ -85,7 +85,14 @@ func (l *Lexer) NextToken() tokens.Token {
 		tok = tokens.New(tokens.TokenTypeLBrace, "{")
 	case '}':
 		tok = tokens.New(tokens.TokenTypeRBrace, "}")
+	case '"':
+		// we have encountered the opening speech marks of a string literal, so we want to read the whole string literal and return it as a token
+		tok.Type = tokens.TokenTypeString
+		tok.Lexeme = l.readString()
+		return tok
+
 	case 0:
+		// if the current char is ASCII NUL then we have reached the end of the input and we return an EOF token
 		tok = tokens.New(tokens.TokenTypeEOF, "")
 	default:
 		if l.isLetter(l.ch) {
@@ -172,4 +179,21 @@ func (l *Lexer) isAlphanumeric(ch byte) bool {
 
 func (l *Lexer) isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
+}
+
+func (l *Lexer) readString() string {
+	position := l.position + 1
+	for {
+		l.readChar()
+		if l.ch == '"' || l.ch == 0 {
+			break
+		}
+	}
+
+	strLiteral := l.input[position:l.position]
+
+	// we have now read the closing speech marks of the string literal so we want to advance our position so that the next call to NextToken will give us the next token after the string literal
+	l.readChar()
+
+	return strLiteral
 }
