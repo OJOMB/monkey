@@ -11,7 +11,7 @@ import (
 	"github.com/OJOMB/monkey/internal/tokens"
 )
 
-func TestLetStmts(t *testing.T) {
+func TestParseStatements(t *testing.T) {
 	type testCase struct {
 		Name           string
 		input          string
@@ -23,10 +23,10 @@ func TestLetStmts(t *testing.T) {
 		{
 			Name: "test let statements - no errors",
 			input: `
-				let x = 5;
-				let y = 10;
-				let __foobar__ = 838383;
-			`,
+					let x = 5;
+					let y = "hello";
+					let __foobar__ = false;
+				`,
 			expectedOutput: &ast.Program{
 				Statements: []ast.Statement{
 					&ast.StatementLet{
@@ -46,9 +46,9 @@ func TestLetStmts(t *testing.T) {
 							Token: tokens.Token{Type: "IDENT", Lexeme: "y"},
 							Value: "y",
 						},
-						Value: &ast.ExpressionLiteralInteger{
-							Token: tokens.Token{Type: "INT", Lexeme: "10"},
-							Value: 10,
+						Value: &ast.ExpressionLiteralString{
+							Token: tokens.Token{Type: "STRING", Lexeme: "hello"},
+							Value: "hello",
 						},
 					},
 					&ast.StatementLet{
@@ -57,9 +57,9 @@ func TestLetStmts(t *testing.T) {
 							Token: tokens.Token{Type: "IDENT", Lexeme: "__foobar__"},
 							Value: "__foobar__",
 						},
-						Value: &ast.ExpressionLiteralInteger{
-							Token: tokens.Token{Type: "INT", Lexeme: "838383"},
-							Value: 838383,
+						Value: &ast.ExpressionLiteralBoolean{
+							Token: tokens.Token{Type: "FALSE", Lexeme: "false"},
+							Value: false,
 						},
 					},
 				},
@@ -70,8 +70,8 @@ func TestLetStmts(t *testing.T) {
 			Name: "test return statements",
 			input: `
 				return 5;
-				return 10;
-				return 993322;
+				return "kool";
+				return true;
 			`,
 			expectedOutput: &ast.Program{
 				Statements: []ast.Statement{
@@ -84,16 +84,16 @@ func TestLetStmts(t *testing.T) {
 					},
 					&ast.ReturnStatement{
 						Token: tokens.Token{Type: "RETURN", Lexeme: "return"},
-						ReturnValue: &ast.ExpressionLiteralInteger{
-							Token: tokens.Token{Type: "INT", Lexeme: "10"},
-							Value: 10,
+						ReturnValue: &ast.ExpressionLiteralString{
+							Token: tokens.Token{Type: "STRING", Lexeme: "kool"},
+							Value: "kool",
 						},
 					},
 					&ast.ReturnStatement{
 						Token: tokens.Token{Type: "RETURN", Lexeme: "return"},
-						ReturnValue: &ast.ExpressionLiteralInteger{
-							Token: tokens.Token{Type: "INT", Lexeme: "993322"},
-							Value: 993322,
+						ReturnValue: &ast.ExpressionLiteralBoolean{
+							Token: tokens.Token{Type: "TRUE", Lexeme: "true"},
+							Value: true,
 						},
 					},
 				},
@@ -296,7 +296,7 @@ func TestParsingInfixExpressions(t *testing.T) {
 					},
 				},
 			},
-			expectedErrs: nil,
+			expectedErrs: []string{},
 		},
 	}
 

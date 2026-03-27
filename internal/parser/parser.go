@@ -77,6 +77,7 @@ func New(l *lexer.Lexer, logger logs.Logger) (*Parser, error) {
 		l:                l,
 		parseFuncsPrefix: make(map[tokens.TokenType]parseFuncPrefix),
 		parseFuncsInfix:  make(map[tokens.TokenType]parseFuncInfix),
+		Errors:           make([]string, 0),
 		logger:           logger,
 	}
 
@@ -140,6 +141,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	case tokens.TokenTypeReturn:
 		stmt = p.parseStatementReturn()
 	default:
+		// if the statement doesn't match any of the above types, we assume it's an expression statement and try to parse it as such
+		// this would be something like foo(5 + 5); or 5 + 5; or "foobar";
 		stmt = p.parseExpressionStatement()
 	}
 
@@ -170,19 +173,17 @@ func (p *Parser) parseStatementLet() *ast.StatementLet {
 		return nil
 	}
 
+	p.nextToken()
+
 	// next we have the expression which will be the LetStatement.Value
 	value := p.parseExpression(precedenceLowest)
 
 	ls.Value = value
 
-	// we need to see a semicolon to end the expression
-	if p.currToken.Type != tokens.TokenTypeSemicolon {
-		return nil
-	}
-
 	return ls
 }
 
+// parseStatementReturn parses a return statement and returns an ast.ReturnStatement node.
 func (p *Parser) parseStatementReturn() *ast.ReturnStatement {
 	if p.currToken.Type != tokens.TokenTypeReturn {
 		return nil
@@ -193,10 +194,6 @@ func (p *Parser) parseStatementReturn() *ast.ReturnStatement {
 	p.nextToken()
 
 	rs.ReturnValue = p.parseExpression(precedenceLowest)
-
-	if p.currToken.Type != tokens.TokenTypeSemicolon {
-		return nil
-	}
 
 	return rs
 }
@@ -224,7 +221,9 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	leftExp := prefixFunc()
 
 	// next check if the expression ends here or if we have more to parse
-	// vf
+	// if the peek token is a semicolon, then we have reached the end of the expression and we can return the left expression
+	// if the precedence of the peek token is higher than the current precedence, then we need to parse the infix expression
+	// we continue to parse infix expressions until we reach a semicolon or a token with lower precedence than the current precedence
 	for p.peekToken.Type != tokens.TokenTypeSemicolon && precedence < p.peekPrecedence() {
 		infixFunc := p.parseFuncsInfix[p.peekToken.Type]
 		if infixFunc == nil {

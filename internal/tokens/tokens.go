@@ -66,17 +66,17 @@ const (
 	// TokenTypeLet represents the 'let' keyword token.
 	TokenTypeLet TokenType = "LET"
 	// TokenTypeTrue represents the boolean value true
-	TokenTypeTrue TokenType = "true"
+	TokenTypeTrue TokenType = "TRUE"
 	// TokenTypeFalse represents the boolean value false
-	TokenTypeFalse TokenType = "false"
+	TokenTypeFalse TokenType = "FALSE"
 	// TokenTypeIf represents the control flow keyword if.
-	TokenTypeIf TokenType = "if"
+	TokenTypeIf TokenType = "IF"
 	// TokenTypeElif represents the control flow keyword elif.
-	TokenTypeElif TokenType = "elif"
+	TokenTypeElif TokenType = "ELIF"
 	// TokenTypeElse represents the control flow keyword else.
-	TokenTypeElse TokenType = "else"
+	TokenTypeElse TokenType = "ELSE"
 	// TokenTypeReturn represents the control flow keyword return.
-	TokenTypeReturn TokenType = "return"
+	TokenTypeReturn TokenType = "RETURN"
 )
 
 var keywords = map[string]TokenType{
