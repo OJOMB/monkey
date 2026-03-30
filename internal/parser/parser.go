@@ -137,9 +137,13 @@ func (p *Parser) parseStatement() ast.Statement {
 	var stmt ast.Statement
 	switch p.currToken.Type {
 	case tokens.TokenTypeLet:
-		stmt = p.parseStatementLet()
+		return p.parseStatementLet()
 	case tokens.TokenTypeReturn:
-		stmt = p.parseStatementReturn()
+		return p.parseStatementReturn()
+	// case tokens.TokenTypeIdent:
+	// 	// TODO: can we add rebinding here? statements such as x = 42;
+	// 	//
+	// 	fallthrough
 	default:
 		// if the statement doesn't match any of the above types, we assume it's an expression statement and try to parse it as such
 		// this would be something like foo(5 + 5); or 5 + 5; or "foobar";
