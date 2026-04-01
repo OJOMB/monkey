@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"io"
 
-	"github.com/OJOMB/monkey/internal/lexer"
-	"github.com/OJOMB/monkey/internal/tokens"
+	"github.com/OJOMB/donkey/internal/lexer"
+	"github.com/OJOMB/donkey/internal/tokens"
 )
 
 const Prompt = ">> "
@@ -22,7 +22,7 @@ func New(in io.Reader, out io.Writer) *Repl {
 func (r *Repl) Start() {
 	scanner := bufio.NewScanner(r.in)
 
-	if _, err := r.out.Write([]byte("Welcome to the Monkey programming language!\n")); err != nil {
+	if _, err := r.out.Write([]byte("Welcome to the Donkey programming language!\n")); err != nil {
 		return
 	}
 

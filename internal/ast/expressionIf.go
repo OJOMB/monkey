@@ -3,7 +3,7 @@ package ast
 import (
 	"strings"
 
-	"github.com/OJOMB/monkey/internal/tokens"
+	"github.com/OJOMB/donkey/internal/tokens"
 )
 
 type ExpressionIf struct {

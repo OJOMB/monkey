@@ -3,7 +3,7 @@ package ast
 import (
 	"fmt"
 
-	"github.com/OJOMB/monkey/internal/tokens"
+	"github.com/OJOMB/donkey/internal/tokens"
 )
 
 const stringFmtReturnStatement = "return %s;"

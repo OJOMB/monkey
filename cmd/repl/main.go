@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/OJOMB/monkey/internal/repl"
+	"github.com/OJOMB/donkey/internal/repl"
 )
 
 func main() {

@@ -1,8 +1,8 @@
 package ast
 
-import "github.com/OJOMB/monkey/internal/tokens"
+import "github.com/OJOMB/donkey/internal/tokens"
 
-// ExpressionInfix represents an infix expression in the Monkey programming language, such as 5 + 5 or 10 - 2.
+// ExpressionInfix represents an infix expression in the Donkey programming language, such as 5 + 5 or 10 - 2.
 type ExpressionInfix struct {
 	Token    tokens.Token
 	Left     Expression

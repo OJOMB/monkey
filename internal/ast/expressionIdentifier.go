@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/OJOMB/monkey/internal/tokens"
+import "github.com/OJOMB/donkey/internal/tokens"
 
 // ExpressionIdentifier represents an identifier in the AST. It contains a token and a value for the identifier name.
 type ExpressionIdentifier struct {

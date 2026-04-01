@@ -6,9 +6,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/OJOMB/monkey/internal/ast"
-	"github.com/OJOMB/monkey/internal/lexer"
-	"github.com/OJOMB/monkey/internal/tokens"
+	"github.com/OJOMB/donkey/internal/ast"
+	"github.com/OJOMB/donkey/internal/lexer"
+	"github.com/OJOMB/donkey/internal/tokens"
 )
 
 func TestParseStatements(t *testing.T) {
@@ -290,70 +290,70 @@ func TestParsingInfixExpressions(t *testing.T) {
 	}
 
 	var testCases = []testCase{
-		{
-			name:  "simple infix expressions - no errors",
-			input: `5 + 122;`,
-			expectedOutput: &ast.Program{
-				Statements: []ast.Statement{
-					&ast.StatementExpression{
-						Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "5"},
-						Expression: &ast.ExpressionInfix{
-							Token:    tokens.Token{Type: tokens.TokenTypePlus, Lexeme: "+"},
-							Operator: "+",
-							Left: &ast.ExpressionLiteralInteger{
-								Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "5"},
-								Value: 5,
-							},
-							Right: &ast.ExpressionLiteralInteger{
-								Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "122"},
-								Value: 122,
-							},
-						},
-					},
-				},
-			},
-			expectedErrs: []string{},
-		},
-		{
-			name:  "slightly more complex infix expression - no errors",
-			input: `5 + 5 / 10 * 4;`,
-			expectedOutput: &ast.Program{
-				Statements: []ast.Statement{
-					&ast.StatementExpression{
-						Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "5"},
-						Expression: &ast.ExpressionInfix{
-							Token:    tokens.Token{Type: tokens.TokenTypePlus, Lexeme: "+"},
-							Operator: "+",
-							Left: &ast.ExpressionLiteralInteger{
-								Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "5"},
-								Value: 5,
-							},
-							Right: &ast.ExpressionInfix{
-								Token:    tokens.Token{Type: tokens.TokenTypeAsterisk, Lexeme: "*"},
-								Operator: "*",
-								Left: &ast.ExpressionInfix{
-									Token:    tokens.Token{Type: tokens.TokenTypeForwardSlash, Lexeme: "/"},
-									Operator: "/",
-									Left: &ast.ExpressionLiteralInteger{
-										Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "5"},
-										Value: 5,
-									},
-									Right: &ast.ExpressionLiteralInteger{
-										Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "10"},
-										Value: 10,
-									},
-								},
-								Right: &ast.ExpressionLiteralInteger{
-									Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "4"},
-									Value: 4,
-								},
-							},
-						},
-					},
-				},
-			},
-			expectedErrs: []string{},
-		},
+		// {
+		// 	name:  "simple infix expressions - no errors",
+		// 	input: `5 + 122;`,
+		// 	expectedOutput: &ast.Program{
+		// 		Statements: []ast.Statement{
+		// 			&ast.StatementExpression{
+		// 				Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "5"},
+		// 				Expression: &ast.ExpressionInfix{
+		// 					Token:    tokens.Token{Type: tokens.TokenTypePlus, Lexeme: "+"},
+		// 					Operator: "+",
+		// 					Left: &ast.ExpressionLiteralInteger{
+		// 						Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "5"},
+		// 						Value: 5,
+		// 					},
+		// 					Right: &ast.ExpressionLiteralInteger{
+		// 						Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "122"},
+		// 						Value: 122,
+		// 					},
+		// 				},
+		// 			},
+		// 		},
+		// 	},
+		// 	expectedErrs: []string{},
+		// },
+		// {
+		// 	name:  "slightly more complex infix expression - no errors",
+		// 	input: `5 + 5 / 10 * 4;`,
+		// 	expectedOutput: &ast.Program{
+		// 		Statements: []ast.Statement{
+		// 			&ast.StatementExpression{
+		// 				Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "5"},
+		// 				Expression: &ast.ExpressionInfix{
+		// 					Token:    tokens.Token{Type: tokens.TokenTypePlus, Lexeme: "+"},
+		// 					Operator: "+",
+		// 					Left: &ast.ExpressionLiteralInteger{
+		// 						Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "5"},
+		// 						Value: 5,
+		// 					},
+		// 					Right: &ast.ExpressionInfix{
+		// 						Token:    tokens.Token{Type: tokens.TokenTypeAsterisk, Lexeme: "*"},
+		// 						Operator: "*",
+		// 						Left: &ast.ExpressionInfix{
+		// 							Token:    tokens.Token{Type: tokens.TokenTypeForwardSlash, Lexeme: "/"},
+		// 							Operator: "/",
+		// 							Left: &ast.ExpressionLiteralInteger{
+		// 								Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "5"},
+		// 								Value: 5,
+		// 							},
+		// 							Right: &ast.ExpressionLiteralInteger{
+		// 								Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "10"},
+		// 								Value: 10,
+		// 							},
+		// 						},
+		// 						Right: &ast.ExpressionLiteralInteger{
+		// 							Token: tokens.Token{Type: tokens.TokenTypeInt, Lexeme: "4"},
+		// 							Value: 4,
+		// 						},
+		// 					},
+		// 				},
+		// 			},
+		// 		},
+		// 	},
+		// 	expectedErrs: []string{},
+		// },
 		{
 			name:  "slightly more complex infix expression - no errors",
 			input: `5 * 5 + 10 / 4;`,

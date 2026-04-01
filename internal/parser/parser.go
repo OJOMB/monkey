@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/OJOMB/monkey/internal/ast"
-	"github.com/OJOMB/monkey/internal/lexer"
-	"github.com/OJOMB/monkey/internal/tokens"
-	"github.com/OJOMB/monkey/pkg/logs"
+	"github.com/OJOMB/donkey/internal/ast"
+	"github.com/OJOMB/donkey/internal/lexer"
+	"github.com/OJOMB/donkey/internal/tokens"
+	"github.com/OJOMB/donkey/pkg/logs"
 )
 
 const (
 	// Precedence levels for parsing expressions
-	_ int = iota
+
 	// precedenceLowest is the lowest precedence level, used for expressions that don't have any operators.
-	precedenceLowest
+	precedenceLowest int = iota
 	// precedenceEquals is the precedence level for the equality operator (==).
 	precedenceEquals
 	// precedenceLessGreater is the precedence level for the less than and greater than operators (< and >).
@@ -228,13 +228,13 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 
 	// next check if the expression ends here or if we have more to parse
 	// if the peek token is a semicolon, then we have reached the end of the expression and we can return the left expression
-	// if the precedence of the peek token is higher than the current precedence, then we need to parse the infix expression
+	// if the precedence of the peek token is higher than the current precedence, then we enter the loop
 	// we continue to parse infix expressions until we reach a semicolon or a token with lower precedence than the current precedence
 	for p.peekToken.Type != tokens.TokenTypeSemicolon && precedence < p.peekPrecedence() {
-		infixFunc := p.parseFuncsInfix[p.peekToken.Type]
-		if infixFunc == nil {
+		infixFunc, ok := p.parseFuncsInfix[p.peekToken.Type]
+		if !ok {
 			// TODO should this not be an error instead of just returning the left expression?
-			// in this case we have a valid left expression but we don't know how to parse the next token as an infix
+			// in this case we have a valid left expression, peekPrecedence has returned a value but we don't know how to parse the next token as an infix
 			// in what case would this be valid?
 
 			return leftExp

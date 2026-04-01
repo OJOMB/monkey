@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/OJOMB/monkey/internal/tokens"
+	"github.com/OJOMB/donkey/internal/tokens"
 )
 
 func TestNextToken1(t *testing.T) {

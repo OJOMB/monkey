@@ -3,7 +3,7 @@ package ast
 import (
 	"fmt"
 
-	"github.com/OJOMB/monkey/internal/tokens"
+	"github.com/OJOMB/donkey/internal/tokens"
 )
 
 // stringFmtLetStatement is the format string used for representing a let statement in the AST when converting it to a string.

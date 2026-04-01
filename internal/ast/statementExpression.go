@@ -1,9 +1,9 @@
 package ast
 
-import "github.com/OJOMB/monkey/internal/tokens"
+import "github.com/OJOMB/donkey/internal/tokens"
 
 // StatementExpression represents a statement in the AST that is just an expression. It contains a token and an expression.
-// For example, in the Monkey programming language, an expression statement could be something like "5 + 5;" where the expression is "5 + 5" or "foobar;" where the expression is "foobar".
+// For example, in the Donkey programming language, an expression statement could be something like "5 + 5;" where the expression is "5 + 5" or "foobar;" where the expression is "foobar".
 type StatementExpression struct {
 	// Token is the token associated with the expression statement, which is typically the first token of the expression.
 	Token tokens.Token

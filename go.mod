@@ -1,4 +1,4 @@
-module github.com/OJOMB/monkey
+module github.com/OJOMB/donkey
 
 go 1.26.1
 
