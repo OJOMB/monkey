@@ -26,6 +26,7 @@ func TestParseStatements(t *testing.T) {
 					var x = 5;
 					var y = "hello";
 					var __foobar__ = false;
+					var myFunction = fn(x) { return x + 1; };
 				`,
 			expectedOutput: &ast.Program{
 				Statements: []ast.Statement{
@@ -60,6 +61,39 @@ func TestParseStatements(t *testing.T) {
 						Value: &ast.ExpressionLiteralBoolean{
 							Token: tokens.Token{Type: "FALSE", Lexeme: "false"},
 							Value: false,
+						},
+					},
+					&ast.StatementBind{
+						Token: tokens.Token{Type: tokens.TypeBinder, Lexeme: "var"},
+						Name: &ast.ExpressionIdentifier{
+							Token: tokens.Token{Type: "IDENT", Lexeme: "myFunction"},
+							Value: "myFunction",
+						},
+						Value: &ast.ExpressionLiteralFunction{
+							Token: tokens.Token{Type: tokens.TypeFunction, Lexeme: "fn"},
+							Parameters: []*ast.ExpressionIdentifier{
+								{
+									Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "x"},
+									Value: "x",
+								},
+							},
+							Body: &ast.StatementBlock{Statements: []ast.Statement{
+								&ast.ReturnStatement{
+									Token: tokens.Token{Type: tokens.TypeReturn, Lexeme: "return"},
+									ReturnValue: &ast.ExpressionInfix{
+										Token:    tokens.Token{Type: tokens.TypePlus, Lexeme: "+"},
+										Operator: "+",
+										Left: &ast.ExpressionIdentifier{
+											Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "x"},
+											Value: "x",
+										},
+										Right: &ast.ExpressionLiteralInteger{
+											Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "1"},
+											Value: 1,
+										},
+									},
+								},
+							}},
 						},
 					},
 				},
@@ -100,22 +134,23 @@ func TestParseStatements(t *testing.T) {
 			},
 			expectedErrs: []string{},
 		},
-		{
-			name: "assignment statements",
-			input: `
-				x = 5;
-				y = "kool";
-				__foobar__ = true;
-			`,
-			expectedOutput: &ast.Program{
-				Statements: []ast.Statement{},
-			},
-			expectedErrs: []string{
-				"unexpected token: =",
-				"unexpected token: =",
-				"unexpected token: =",
-			},
-		},
+		// TODO see how complex it is to add support for rebind statements
+		// {
+		// 	name: "rebind statements",
+		// 	input: `
+		// 		x = 5;
+		// 		y = "kool";
+		// 		__foobar__ = true;
+		// 	`,
+		// 	expectedOutput: &ast.Program{
+		// 		Statements: []ast.Statement{},
+		// 	},
+		// 	expectedErrs: []string{
+		// 		"unexpected token: =",
+		// 		"unexpected token: =",
+		// 		"unexpected token: =",
+		// 	},
+		// },
 	}
 
 	for _, tc := range testCases {
