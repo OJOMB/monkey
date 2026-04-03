@@ -21,37 +21,23 @@ func (ei *ExpressionIf) expressionNode()     {}
 func (ei *ExpressionIf) TokenLexeme() string { return "if" }
 
 func (ei *ExpressionIf) String() string {
-	// out := "if" + ei.Condition.String() + " " + ei.Consequence.String()
 	var out = strings.Builder{}
-	if _, err := out.WriteString("if"); err != nil {
-		return "failed to write if expression string representation"
-	}
 
+	// NB WriteString never returns an error when writing to a strings.Builder, it's purely for interface compatibility with io.Writer.
+	_, _ = out.WriteString("if")
 	for i, branch := range ei.Branches {
 		if i > 0 {
-			if _, err := out.WriteString("elif"); err != nil {
-				return "failed to write if expression string representation"
-			}
+			_, _ = out.WriteString("elif")
 		}
 
-		if _, err := out.WriteString(branch.Condition.String()); err != nil {
-			return "failed to write if expression string representation"
-		}
-		if _, err := out.WriteString(" "); err != nil {
-			return "failed to write if expression string representation"
-		}
-		if _, err := out.WriteString(branch.Consequence.String()); err != nil {
-			return "failed to write if expression string representation"
-		}
+		_, _ = out.WriteString(branch.Condition.String())
+		_, _ = out.WriteString(" ")
+		_, _ = out.WriteString(branch.Consequence.String())
 	}
 
 	if ei.Alternative != nil {
-		if _, err := out.WriteString("else "); err != nil {
-			return "failed to write if expression string representation"
-		}
-		if _, err := out.WriteString(ei.Alternative.String()); err != nil {
-			return "failed to write if expression string representation"
-		}
+		_, _ = out.WriteString("else ")
+		_, _ = out.WriteString(ei.Alternative.String())
 	}
 
 	return out.String()
