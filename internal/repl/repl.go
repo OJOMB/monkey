@@ -5,7 +5,7 @@ import (
 	"io"
 
 	"github.com/OJOMB/donkey/internal/lexer"
-	"github.com/OJOMB/donkey/internal/tokens"
+	"github.com/OJOMB/donkey/internal/parser"
 	"github.com/OJOMB/donkey/pkg/logs"
 )
 
@@ -34,6 +34,7 @@ func (r *Repl) Start() {
 		return
 	}
 
+	// loop indefinitely, reading input from the user and processing it until we encounter a SIGINT (Ctrl+C)
 	for {
 		if _, err := r.out.Write([]byte(Prompt)); err != nil {
 			r.logger.Error("failed to write prompt", "error", err)
@@ -52,12 +53,27 @@ func (r *Repl) Start() {
 		line := scanner.Text()
 		l := lexer.New(line, r.logger)
 
-		for tok := l.NextToken(); tok.Type != tokens.TypeEOF; tok = l.NextToken() {
-			if _, err := r.out.Write([]byte(tok.Lexeme + "\n")); err != nil {
-				r.logger.Error("failed to write token", "error", err)
+		p, err := parser.New(l, r.logger)
+		if err != nil {
+			r.logger.Error("failed to create parser", "error", err)
+			return
+		}
+		program := p.ParseProgram()
 
-				return
+		if len(p.Errors) != 0 {
+			for _, err := range p.Errors {
+				if _, err := r.out.Write([]byte("parser error: " + err + "\n")); err != nil {
+					r.logger.Error("failed to write parser error", "error", err)
+					return
+				}
 			}
+
+			continue
+		}
+
+		if _, err := r.out.Write([]byte(program.String() + "\n")); err != nil {
+			r.logger.Error("failed to write program output", "error", err)
+			return
 		}
 	}
 }
