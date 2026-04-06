@@ -155,7 +155,7 @@ func TestParseStatements(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			p, err := New(lexer.New(tc.input), nil)
+			p, err := New(lexer.New(tc.input, nil), nil)
 			require.NoError(t, err)
 
 			program := p.ParseProgram()
@@ -170,7 +170,7 @@ func TestParseStatements(t *testing.T) {
 func TestIdentifierExpression(t *testing.T) {
 	input := "foobar;"
 
-	p, err := New(lexer.New(input), nil)
+	p, err := New(lexer.New(input, nil), nil)
 	require.NoError(t, err)
 
 	program := p.ParseProgram()
@@ -189,7 +189,7 @@ func TestIdentifierExpression(t *testing.T) {
 func TestIntegerExpression(t *testing.T) {
 	input := "5;"
 
-	p, err := New(lexer.New(input), nil)
+	p, err := New(lexer.New(input, nil), nil)
 	require.NoError(t, err)
 
 	program := p.ParseProgram()
@@ -209,7 +209,7 @@ func TestIntegerExpression(t *testing.T) {
 func TestStringExpression(t *testing.T) {
 	input := `"hello";`
 
-	p, err := New(lexer.New(input), nil)
+	p, err := New(lexer.New(input, nil), nil)
 	require.NoError(t, err)
 
 	program := p.ParseProgram()
@@ -230,7 +230,7 @@ func TestExpressionPrefix(t *testing.T) {
 	t.Run("prefix expression: !", func(t *testing.T) {
 		input := "!5;"
 
-		p, err := New(lexer.New(input), nil)
+		p, err := New(lexer.New(input, nil), nil)
 		require.NoError(t, err)
 
 		program := p.ParseProgram()
@@ -252,7 +252,7 @@ func TestExpressionPrefix(t *testing.T) {
 	t.Run("prefix expression: -", func(t *testing.T) {
 		input := "-15;"
 
-		p, err := New(lexer.New(input), nil)
+		p, err := New(lexer.New(input, nil), nil)
 		require.NoError(t, err)
 
 		program := p.ParseProgram()
@@ -276,7 +276,7 @@ func TestExpressionStatementBool(t *testing.T) {
 	t.Run("simple boolean literal: true", func(t *testing.T) {
 		input := "true;"
 
-		p, err := New(lexer.New(input), nil)
+		p, err := New(lexer.New(input, nil), nil)
 		require.NoError(t, err)
 
 		program := p.ParseProgram()
@@ -297,7 +297,7 @@ func TestExpressionStatementBool(t *testing.T) {
 	t.Run("simple boolean literal: false", func(t *testing.T) {
 		input := "false;"
 
-		p, err := New(lexer.New(input), nil)
+		p, err := New(lexer.New(input, nil), nil)
 		require.NoError(t, err)
 
 		program := p.ParseProgram()
@@ -473,7 +473,7 @@ func TestParsingInfixExpressions(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			p, err := New(lexer.New(tc.input), nil)
+			p, err := New(lexer.New(tc.input, nil), nil)
 			require.NoError(t, err)
 
 			program := p.ParseProgram()
@@ -620,7 +620,7 @@ func TestIfExpression(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			p, err := New(lexer.New(tc.input), nil)
+			p, err := New(lexer.New(tc.input, nil), nil)
 			require.NoError(t, err)
 
 			program := p.ParseProgram()
@@ -712,7 +712,7 @@ func TestFunctionLiterals(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			p, err := New(lexer.New(tc.input), nil)
+			p, err := New(lexer.New(tc.input, nil), nil)
 			require.NoError(t, err)
 
 			program := p.ParseProgram()
@@ -778,7 +778,7 @@ func TestParsingFunctionCalls(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			p, err := New(lexer.New(tc.input), nil)
+			p, err := New(lexer.New(tc.input, nil), nil)
 			require.NoError(t, err)
 
 			program := p.ParseProgram()
@@ -857,7 +857,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			p, err := New(lexer.New(tc.input), nil)
+			p, err := New(lexer.New(tc.input, nil), nil)
 			require.NoError(t, err)
 
 			program := p.ParseProgram()

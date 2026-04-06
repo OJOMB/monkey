@@ -207,7 +207,7 @@ func TestNextToken(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		lex := New(tc.input)
+		lex := New(tc.input, nil)
 
 		// call NextToken until we get an EOF token - assuming the lexer is working correctly we should get the expected output tokens in order
 		var toks []tokens.Token
@@ -234,7 +234,7 @@ func TestStringLiteral(t *testing.T) {
 	var testCases = []testCase{
 		{
 			name:  "test string literal token",
-			input: `let myString = "foobar";`,
+			input: `var myString = "foobar";`,
 			expectedOutput: []tokens.Token{
 				{Type: tokens.TypeBinder, Lexeme: "var"},
 				{Type: tokens.TypeIdent, Lexeme: "myString"},
@@ -247,7 +247,7 @@ func TestStringLiteral(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
-		lex := New(tc.input)
+		lex := New(tc.input, nil)
 
 		var toks []tokens.Token
 		for {

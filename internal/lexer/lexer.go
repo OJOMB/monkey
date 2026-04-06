@@ -1,6 +1,9 @@
 package lexer
 
-import "github.com/OJOMB/donkey/internal/tokens"
+import (
+	"github.com/OJOMB/donkey/internal/tokens"
+	"github.com/OJOMB/donkey/pkg/logs"
+)
 
 type Lexer struct {
 	// input is the string input that the lexer will tokenize.
@@ -11,11 +14,18 @@ type Lexer struct {
 	readPosition int
 	// ch is the current char literal under examination (ASCII single byte chars - Unicode not supported)
 	ch byte
+
+	logger logs.Logger
 }
 
 // New creates a new Lexer instance with the given input string and returns a pointer to it. The lexer is initialised and ready to return tokens when NextToken is called.
-func New(input string) *Lexer {
-	l := &Lexer{input: input}
+func New(input string, logger logs.Logger) *Lexer {
+	if logger == nil {
+		// null logger to avoid nil pointer dereference
+		logger = logs.NewNullLogger()
+	}
+
+	l := &Lexer{input: input, logger: logger.With("component", "lexer")}
 
 	// read the first char so that the lexer is ready to return the first token when NextToken is called
 	l.readChar()

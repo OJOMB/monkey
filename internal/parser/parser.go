@@ -35,7 +35,7 @@ type Parser struct {
 func New(l *lexer.Lexer, logger logs.Logger) (*Parser, error) {
 	if logger == nil {
 		// null logger to avoid nil pointer dereference
-		logger = logs.NewNullSlogger()
+		logger = logs.NewNullLogger()
 	}
 
 	if !l.IsInitialised() {
@@ -47,7 +47,7 @@ func New(l *lexer.Lexer, logger logs.Logger) (*Parser, error) {
 		parseFuncsPrefix: make(map[tokens.Type]parseFuncPrefix),
 		parseFuncsInfix:  make(map[tokens.Type]parseFuncInfix),
 		Errors:           make([]string, 0),
-		logger:           logger,
+		logger:           logger.With("component", "parser"),
 	}
 
 	// register prefix parse functions for different token types
