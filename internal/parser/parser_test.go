@@ -632,7 +632,7 @@ func TestIfExpression(t *testing.T) {
 	}
 }
 
-func TestFunctionLiteral(t *testing.T) {
+func TestFunctionLiterals(t *testing.T) {
 	type testCase struct {
 		name           string
 		input          string
@@ -702,6 +702,72 @@ func TestFunctionLiteral(t *testing.T) {
 									},
 								},
 							}},
+						},
+					},
+				},
+			},
+			expectedErrs: []string{},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			p, err := New(lexer.New(tc.input), nil)
+			require.NoError(t, err)
+
+			program := p.ParseProgram()
+			assert.NotNil(t, program)
+
+			assert.Equal(t, tc.expectedOutput, program)
+			assert.Equal(t, tc.expectedErrs, p.Errors)
+		})
+	}
+}
+
+func TestParsingFunctionCalls(t *testing.T) {
+	type testCase struct {
+		name           string
+		input          string
+		expectedOutput *ast.Program
+		expectedErrs   []string
+	}
+
+	var testCases = []testCase{
+		{
+			name:  "function call with args - no errors",
+			input: `myFunction(2+3, param2, false);`,
+			expectedOutput: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "myFunction"},
+						Expression: &ast.ExpressionCall{
+							Token: tokens.Token{Type: tokens.TypeLParen, Lexeme: "("},
+							Function: &ast.ExpressionIdentifier{
+								Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "myFunction"},
+								Value: "myFunction",
+							},
+							Arguments: []ast.Expression{
+								&ast.ExpressionInfix{
+									Token:    tokens.Token{Type: tokens.TypePlus, Lexeme: "+"},
+									Operator: "+",
+									Left: &ast.ExpressionLiteralInteger{
+										Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "2"},
+										Value: 2,
+									},
+									Right: &ast.ExpressionLiteralInteger{
+										Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "3"},
+										Value: 3,
+									},
+								},
+								&ast.ExpressionIdentifier{
+									Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "param2"},
+									Value: "param2",
+								},
+								&ast.ExpressionLiteralBoolean{
+									Token: tokens.Token{Type: tokens.TypeFalse, Lexeme: "false"},
+									Value: false,
+								},
+							},
 						},
 					},
 				},

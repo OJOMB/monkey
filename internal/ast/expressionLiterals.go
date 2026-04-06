@@ -49,7 +49,10 @@ func (lb *ExpressionLiteralBoolean) String() string {
 }
 
 // ExpressionLiteralFunction represents a function literal expression in the Donkey programming language, such as "fn(x) { x + 1 }".
-// For example, in the expression "let add = fn(x) { x + 1 };", the "fn(x) { x + 1 }" is a function literal expression that represents the value being assigned to the variable "add" in the let statement.
+// For example, in the expression "let add = fn(x) { x + 1 };"
+// the "fn(x) { x + 1 }" is a function literal expression that represents the value being assigned to the variable "add" in the let statement.
+// not to be confused with ExpressionCall, which represents a function call expression like "add(5)" where "add" is the function being called and "5" is the argument passed to the function.
+// fn(<parameters>) { <body> }
 type ExpressionLiteralFunction struct {
 	// Token is the token associated with the function literal, which is the "fn" keyword.
 	Token tokens.Token

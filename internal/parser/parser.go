@@ -102,6 +102,7 @@ func New(l *lexer.Lexer, logger logs.Logger) (*Parser, error) {
 	p.RegisterInfix(tokens.TypeNotEq, p.parseExpressionInfix)
 	p.RegisterInfix(tokens.TypeLT, p.parseExpressionInfix)
 	p.RegisterInfix(tokens.TypeGT, p.parseExpressionInfix)
+	p.RegisterInfix(tokens.TypeLParen, p.parseExpressionCall)
 
 	// Read two tokens, so currToken and peekToken are both set
 	p.nextToken()
@@ -436,6 +437,42 @@ func (p *Parser) parseExpressionIf() ast.Expression {
 	}
 
 	return expr
+}
+
+func (p *Parser) parseExpressionCall(function ast.Expression) ast.Expression {
+	expr := &ast.ExpressionCall{
+		Token:    p.currToken,
+		Function: function,
+	}
+
+	expr.Arguments = p.parseCallArguments()
+
+	return expr
+}
+
+func (p *Parser) parseCallArguments() []ast.Expression {
+	args := make([]ast.Expression, 0)
+
+	// in the case of no arguments, we should have a right paren immediately after the left paren
+	if p.peekToken.Type == tokens.TypeRParen {
+		p.nextToken()
+		return args
+	}
+
+	p.nextToken()
+	args = append(args, p.parseExpression(precedenceLowest))
+
+	for p.peekToken.Type == tokens.TypeComma {
+		p.nextToken()
+		p.nextToken()
+		args = append(args, p.parseExpression(precedenceLowest))
+	}
+
+	if !p.expectPeek(tokens.TypeRParen) {
+		return nil
+	}
+
+	return args
 }
 
 func (p *Parser) parseBlockStatement() *ast.StatementBlock {
