@@ -10,6 +10,8 @@ const (
 	TypeInteger = "INTEGER"
 	// TypeBoolean represents the type of a boolean object
 	TypeBoolean = "BOOLEAN"
+	// TypeString represents the type of a string object
+	TypeString = "STRING"
 	// TypeNowt represents the type of a nowt object (the equivalent of null or nil)
 	TypeNowt = "NOWT"
 )
