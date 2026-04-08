@@ -1,4 +1,4 @@
-package object
+package objects
 
 // ObjectType is a string that represents the type of an object in the Donkey programming language.
 type ObjectType string

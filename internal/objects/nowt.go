@@ -1,4 +1,4 @@
-package object
+package objects
 
 // Nowt represents the absence of a value, similar to null or nil in other languages. It is used to indicate that a variable or expression does not have a meaningful value.
 type Nowt struct{}
