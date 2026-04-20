@@ -5,7 +5,6 @@ const (
 	TypeIllegal Type = "ILLEGAL"
 	// TypeEOF represents the end of file token.
 	TypeEOF Type = "EOF"
-
 	// TypeIdent represents an identifier token.
 	TypeIdent Type = "IDENT"
 	// TypeInt represents an integer token.
@@ -112,9 +111,10 @@ type Token struct {
 	Lexeme string
 }
 
-func New(tokType Type, tokLit string) Token {
+// New creates a new Token with the given type and literal value.
+func New(tokenType Type, tokenLiteral string) Token {
 	return Token{
-		Type:   tokType,
-		Lexeme: tokLit,
+		Type:   tokenType,
+		Lexeme: tokenLiteral,
 	}
 }

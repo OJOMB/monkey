@@ -8,7 +8,7 @@ type Boolean struct {
 }
 
 // Type returns the type of the Boolean object, which is "BOOLEAN".
-func (b *Boolean) Type() ObjectType { return TypeBoolean }
+func (b *Boolean) Type() Type { return TypeBoolean }
 
 // Inspect returns a string representation of the Boolean object, which is "true" or "false" depending on the value of the Boolean.
 func (b *Boolean) Inspect() string { return fmt.Sprintf("%t", b.Value) }

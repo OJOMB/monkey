@@ -20,5 +20,30 @@ func NewEvaluator(l logs.Logger) *Evaluator {
 
 // Eval evaluates the given AST node and returns the resulting object.
 func (e *Evaluator) Eval(node ast.Node) objects.Object {
-	return nil
+	switch nt := node.(type) {
+	case *ast.Program:
+		return e.evalStatements(nt)
+	case *ast.ExpressionLiteralInteger:
+		return &objects.Integer{Value: nt.Value}
+	case *ast.ExpressionLiteralBoolean:
+		return &objects.Boolean{Value: nt.Value}
+	case *ast.ExpressionLiteralString:
+		return &objects.String{Value: nt.Value}
+	case *ast.ExpressionLiteralFunction:
+		// function literals are not evaluated to a value until they are called, so we return a Nowt object for now
+		return &objects.Nowt{}
+	default:
+		e.logger.Warn("unsupported AST node type", "type: %T", nt)
+		return &objects.Nowt{}
+	}
+}
+
+func (e *Evaluator) evalStatements(program *ast.Program) objects.Object {
+	var result objects.Object
+	for i, stmt := range program.Statements {
+		e.logger.Debug("evaluating statement", "index", i, "statement", stmt.String())
+		result = e.Eval(stmt)
+	}
+
+	return result
 }

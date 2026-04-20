@@ -1,24 +1,28 @@
 package objects
 
-// ObjectType is a string that represents the type of an object in the Donkey programming language.
-type ObjectType string
+// Type is a string that represents the type of an object in the Donkey programming language.
+type Type string
 
 const (
 	// Object types
 
 	// TypeInteger represents the type of an integer object
-	TypeInteger = "INTEGER"
+	TypeInteger Type = "INTEGER"
 	// TypeBoolean represents the type of a boolean object
-	TypeBoolean = "BOOLEAN"
+	TypeBoolean Type = "BOOLEAN"
 	// TypeString represents the type of a string object
-	TypeString = "STRING"
+	TypeString Type = "STRING"
+	// TypeFunction represents the type of a function object
+	TypeFunction Type = "FUNCTION"
 	// TypeNowt represents the type of a nowt object (the equivalent of null or nil)
-	TypeNowt = "NOWT"
+	TypeNowt Type = "NOWT"
 )
 
 // Object is the interface that all objects in the Donkey programming language must implement.
 // It defines two methods: Type, which returns the type of the object, and Inspect, which returns a string representation of the object.
 type Object interface {
-	Type() ObjectType
+	// Type returns the type of the object as an object Type.
+	Type() Type
+	// Inspect returns a string representation of the object, which is used for debugging and error messages.
 	Inspect() string
 }

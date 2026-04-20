@@ -15,7 +15,7 @@ func TestEvaluatorEvalIntegerExpression(t *testing.T) {
 	type testCase struct {
 		name     string
 		input    *ast.ExpressionLiteralInteger
-		expected int64
+		expected int
 	}
 
 	tests := []testCase{
@@ -88,7 +88,7 @@ func TestEvaluatorEvalStringExpression(t *testing.T) {
 			assert.Equal(t, tc.expected, stringResult.Value)
 
 			assert.Equal(t, objects.TypeString, result.Type())
-			assert.Equal(t, fmt.Sprintf("%q", tc.expected), result.Inspect())
+			assert.Equal(t, fmt.Sprintf("%s", tc.expected), result.Inspect())
 		})
 	}
 }
