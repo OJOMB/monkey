@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 
+	"github.com/OJOMB/donkey/internal/evaluator"
 	"github.com/OJOMB/donkey/internal/lexer"
 	"github.com/OJOMB/donkey/internal/parser"
 	"github.com/OJOMB/donkey/pkg/logs"
@@ -80,8 +81,8 @@ func (r *Repl) Start() {
 			r.logger.Error("failed to create parser", "error", err)
 			return
 		}
-		program := p.ParseProgram()
 
+		program := p.ParseProgram()
 		if len(p.Errors) != 0 {
 			for _, err := range p.Errors {
 				if _, err := r.out.Write([]byte("parser error: " + err + "\n")); err != nil {
@@ -93,9 +94,14 @@ func (r *Repl) Start() {
 			continue
 		}
 
-		if _, err := r.out.Write([]byte(program.String() + "\n")); err != nil {
-			r.logger.Error("failed to write program output", "error", err)
-			return
+		// now we have a valid AST, we can evaluate it and print the result
+		e := evaluator.New(r.logger)
+		result := e.Eval(program)
+		if result != nil {
+			if _, err := r.out.Write([]byte(result.Inspect() + "\n")); err != nil {
+				r.logger.Error("failed to write evaluation result", "error", err)
+				return
+			}
 		}
 	}
 }
