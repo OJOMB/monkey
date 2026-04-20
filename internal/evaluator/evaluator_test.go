@@ -104,7 +104,7 @@ func TestEvaluatorEvalProgram(t *testing.T) {
 	tests := []testCase{
 		// {name: "empty program", input: &ast.Program{}, expected: ""},
 		{
-			name: "non-empty program",
+			name: "basic string expression program",
 			input: &ast.Program{
 				Statements: []ast.Statement{
 					&ast.StatementExpression{
@@ -113,6 +113,42 @@ func TestEvaluatorEvalProgram(t *testing.T) {
 				},
 			},
 			expected: &objects.String{Value: "hello"},
+		},
+		{
+			name: "basic integer expression program",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token:      tokens.New(tokens.TypeInt, "5"),
+						Expression: &ast.ExpressionLiteralInteger{Value: 5}},
+				},
+			},
+			expected: &objects.Integer{Value: 5},
+		},
+		{
+			name: "basic boolean expression program",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token:      tokens.New(tokens.TypeTrue, "true"),
+						Expression: &ast.ExpressionLiteralBoolean{Value: true}},
+				},
+			},
+			expected: &objects.Boolean{Value: true},
+		},
+		{
+			name: "multiple statements program",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token:      tokens.New(tokens.TypeInt, "5"),
+						Expression: &ast.ExpressionLiteralInteger{Value: 5}},
+					&ast.StatementExpression{
+						Token:      tokens.New(tokens.TypeInt, "10"),
+						Expression: &ast.ExpressionLiteralInteger{Value: 10}},
+				},
+			},
+			expected: &objects.Integer{Value: 10}, // the result of evaluating a program is the result of evaluating the last statement in the program
 		},
 	}
 
