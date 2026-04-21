@@ -863,6 +863,26 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			input:          `a ^ b + c`,
 			expectedOutput: `((a ^ b) + c)`,
 		},
+		{
+			name:           "operator precedence parsing 14",
+			input:          `a + b ^ c + d`,
+			expectedOutput: `((a + (b ^ c)) + d)`,
+		},
+		{
+			name:           "operator precedence parsing 15",
+			input:          `a && b || c && d `,
+			expectedOutput: `((a && b) || (c && d))`,
+		},
+		{
+			name:           "operator precedence parsing 16",
+			input:          `a || b && c || d && e`,
+			expectedOutput: `((a || (b && c)) || (d && e))`,
+		},
+		{
+			name:           "operator precedence parsing 17",
+			input:          `a | b & c | d`,
+			expectedOutput: `((a | (b & c)) | d)`,
+		},
 	}
 
 	for _, tc := range testCases {

@@ -65,6 +65,10 @@ func New(l *lexer.Lexer, logger logs.Logger) (*Parser, error) {
 	// register infix parse functions for different token types
 	p.RegisterInfix(tokens.TypePlus, p.parseExpressionInfix)
 	p.RegisterInfix(tokens.TypeMinus, p.parseExpressionInfix)
+	p.RegisterInfix(tokens.TypeLogicalAnd, p.parseExpressionInfix)
+	p.RegisterInfix(tokens.TypeLogicalOr, p.parseExpressionInfix)
+	p.RegisterInfix(tokens.TypeBitwiseAnd, p.parseExpressionInfix)
+	p.RegisterInfix(tokens.TypeBitwiseOr, p.parseExpressionInfix)
 	p.RegisterInfix(tokens.TypeForwardSlash, p.parseExpressionInfix)
 	p.RegisterInfix(tokens.TypeAsterisk, p.parseExpressionInfix)
 	p.RegisterInfix(tokens.TypeEq, p.parseExpressionInfix)

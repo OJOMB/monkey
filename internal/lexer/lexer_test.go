@@ -46,7 +46,14 @@ func TestNextToken(t *testing.T) {
 
 				var result = add(five, ten);
 
-				var exponent = 2 ^ 3;`,
+				var exponent = 2 ^ 3;
+
+				var bitwiseAnd = 5 & 3;
+				var bitwiseOr = 5 | 3;
+				var logicalAnd = true && false;
+				var logicalOr = true || false;
+
+				`,
 			expectedOutput: []tokens.Token{
 				{Type: tokens.TypeBinder, Lexeme: "var"},
 				{Type: tokens.TypeIdent, Lexeme: "five"},
@@ -187,6 +194,38 @@ func TestNextToken(t *testing.T) {
 				{Type: tokens.TypeInt, Lexeme: "2"},
 				{Type: tokens.TypeCaret, Lexeme: "^"},
 				{Type: tokens.TypeInt, Lexeme: "3"},
+				{Type: tokens.TypeSemicolon, Lexeme: ";"},
+
+				{Type: tokens.TypeBinder, Lexeme: "var"},
+				{Type: tokens.TypeIdent, Lexeme: "bitwiseAnd"},
+				{Type: tokens.TypeAssign, Lexeme: "="},
+				{Type: tokens.TypeInt, Lexeme: "5"},
+				{Type: tokens.TypeBitwiseAnd, Lexeme: "&"},
+				{Type: tokens.TypeInt, Lexeme: "3"},
+				{Type: tokens.TypeSemicolon, Lexeme: ";"},
+
+				{Type: tokens.TypeBinder, Lexeme: "var"},
+				{Type: tokens.TypeIdent, Lexeme: "bitwiseOr"},
+				{Type: tokens.TypeAssign, Lexeme: "="},
+				{Type: tokens.TypeInt, Lexeme: "5"},
+				{Type: tokens.TypeBitwiseOr, Lexeme: "|"},
+				{Type: tokens.TypeInt, Lexeme: "3"},
+				{Type: tokens.TypeSemicolon, Lexeme: ";"},
+
+				{Type: tokens.TypeBinder, Lexeme: "var"},
+				{Type: tokens.TypeIdent, Lexeme: "logicalAnd"},
+				{Type: tokens.TypeAssign, Lexeme: "="},
+				{Type: tokens.TypeTrue, Lexeme: "true"},
+				{Type: tokens.TypeLogicalAnd, Lexeme: "&&"},
+				{Type: tokens.TypeFalse, Lexeme: "false"},
+				{Type: tokens.TypeSemicolon, Lexeme: ";"},
+
+				{Type: tokens.TypeBinder, Lexeme: "var"},
+				{Type: tokens.TypeIdent, Lexeme: "logicalOr"},
+				{Type: tokens.TypeAssign, Lexeme: "="},
+				{Type: tokens.TypeTrue, Lexeme: "true"},
+				{Type: tokens.TypeLogicalOr, Lexeme: "||"},
+				{Type: tokens.TypeFalse, Lexeme: "false"},
 				{Type: tokens.TypeSemicolon, Lexeme: ";"},
 
 				{Type: tokens.TypeEOF, Lexeme: ""},

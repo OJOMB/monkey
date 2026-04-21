@@ -59,6 +59,14 @@ const (
 	TypeGT Type = ">"
 	// TypeSpeechMarks represents the speech marks token used for opening string literals.
 	TypeSpeechMarks Type = `"`
+	// TypeBitwiseAnd represents the bitwise and operator token.
+	TypeBitwiseAnd Type = "&"
+	// TypeBitwiseOr represents the bitwise or operator token.
+	TypeBitwiseOr Type = "|"
+	// TypeLogicalAnd represents the logical and operator token.
+	TypeLogicalAnd Type = "&&"
+	// TypeLogicalOr represents the logical or operator token.
+	TypeLogicalOr Type = "||"
 
 	///////////////
 	// keywords //

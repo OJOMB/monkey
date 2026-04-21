@@ -7,6 +7,12 @@ const (
 
 	// precedenceLowest is the lowest precedence level, used for expressions that don't have any operators.
 	precedenceLowest int = iota
+
+	precedenceLogicalOr  // ||
+	precedenceLogicalAnd // &&
+	precedenceBitwiseOr  // |
+	precedenceBitwiseAnd // &
+
 	// precedenceEquals is the precedence level for the equality operator (==).
 	precedenceEquals
 	// precedenceLessGreater is the precedence level for the less than and greater than operators (< and >).
@@ -24,16 +30,25 @@ const (
 )
 
 var precedences = map[tokens.Type]int{
-	tokens.TypeEq:           precedenceEquals,
-	tokens.TypeNotEq:        precedenceEquals,
-	tokens.TypeLT:           precedenceLessGreater,
-	tokens.TypeGT:           precedenceLessGreater,
-	tokens.TypeBang:         precedencePrefix,
-	tokens.TypePlus:         precedenceAdditive,
-	tokens.TypeMinus:        precedenceAdditive,
+	tokens.TypeLogicalOr:  precedenceLogicalOr,
+	tokens.TypeLogicalAnd: precedenceLogicalAnd,
+	tokens.TypeBitwiseOr:  precedenceBitwiseOr,
+	tokens.TypeBitwiseAnd: precedenceBitwiseAnd,
+
+	tokens.TypeEq:    precedenceEquals,
+	tokens.TypeNotEq: precedenceEquals,
+	tokens.TypeLT:    precedenceLessGreater,
+	tokens.TypeGT:    precedenceLessGreater,
+
+	tokens.TypePlus:  precedenceAdditive,
+	tokens.TypeMinus: precedenceAdditive,
+
 	tokens.TypeForwardSlash: precedenceMultiplicative,
 	tokens.TypeAsterisk:     precedenceMultiplicative,
 	tokens.TypePercent:      precedenceMultiplicative,
-	tokens.TypeCaret:        precedenceExponentiation,
-	tokens.TypeLParen:       precedenceCall,
+
+	tokens.TypeCaret: precedenceExponentiation,
+
+	tokens.TypeBang:   precedencePrefix,
+	tokens.TypeLParen: precedenceCall,
 }

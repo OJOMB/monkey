@@ -189,6 +189,10 @@ func (e *Evaluator) evalExpressionInfixInteger(operator string, left, right *obj
 		return &objects.Boolean{Value: left.Value <= right.Value}
 	case ">=":
 		return &objects.Boolean{Value: left.Value >= right.Value}
+	case "&":
+		return &objects.Integer{Value: left.Value & right.Value}
+	case "|":
+		return &objects.Integer{Value: left.Value | right.Value}
 	default:
 		e.logger.Warn("unsupported infix operator for integers", "operator", operator)
 		return Nowt

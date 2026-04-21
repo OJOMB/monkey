@@ -91,6 +91,22 @@ func (l *Lexer) NextToken() tokens.Token {
 		}
 
 		tok = tokens.New(tokens.TypeBang, "!")
+	case '&':
+		if l.peekChar() == '&' {
+			l.readChar()
+			tok = tokens.New(tokens.TypeLogicalAnd, "&&")
+			break
+		}
+
+		tok = tokens.New(tokens.TypeBitwiseAnd, "&")
+	case '|':
+		if l.peekChar() == '|' {
+			l.readChar()
+			tok = tokens.New(tokens.TypeLogicalOr, "||")
+			break
+		}
+
+		tok = tokens.New(tokens.TypeBitwiseOr, "|")
 	case '%':
 		tok = tokens.New(tokens.TypePercent, "%")
 	case '^':
