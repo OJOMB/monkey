@@ -352,6 +352,227 @@ func TestEvaluatorEvalExpressionInfixNumerical(t *testing.T) {
 			},
 			expected: &objects.Integer{Value: 2},
 		},
+		{
+			name: "10 % 3",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypePercent, "%"),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypePercent, "%"),
+							Left:     &ast.ExpressionLiteralInteger{Value: 10},
+							Right:    &ast.ExpressionLiteralInteger{Value: 3},
+							Operator: "%",
+						},
+					},
+				},
+			},
+			expected: &objects.Integer{Value: 1},
+		},
+		{
+			name: "10 / 0",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeForwardSlash, "/"),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeForwardSlash, "/"),
+							Left:     &ast.ExpressionLiteralInteger{Value: 10},
+							Right:    &ast.ExpressionLiteralInteger{Value: 0},
+							Operator: "/",
+						},
+					},
+				},
+			},
+			expected: Nowt, // division by zero should return Nowt and log an error
+		},
+		{
+			name: "10 % 0",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypePercent, "%"),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypePercent, "%"),
+							Left:     &ast.ExpressionLiteralInteger{Value: 10},
+							Right:    &ast.ExpressionLiteralInteger{Value: 0},
+							Operator: "%",
+						},
+					},
+				},
+			},
+			expected: Nowt, // modulus by zero should return Nowt and log an error
+		},
+		{
+			name: "5 > 3",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeGT, ">"),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeGT, ">"),
+							Left:     &ast.ExpressionLiteralInteger{Value: 5},
+							Right:    &ast.ExpressionLiteralInteger{Value: 3},
+							Operator: ">",
+						},
+					},
+				},
+			},
+			expected: True,
+		},
+		{
+			name: "3 > 5",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeGT, ">"),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeGT, ">"),
+							Left:     &ast.ExpressionLiteralInteger{Value: 3},
+							Right:    &ast.ExpressionLiteralInteger{Value: 5},
+							Operator: ">",
+						},
+					},
+				},
+			},
+			expected: False,
+		},
+		{
+			name: "5 < 3",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeLT, "<"),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeLT, "<"),
+							Left:     &ast.ExpressionLiteralInteger{Value: 5},
+							Right:    &ast.ExpressionLiteralInteger{Value: 3},
+							Operator: "<",
+						},
+					},
+				},
+			},
+			expected: False,
+		},
+		{
+			name: "3 < 5",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeLT, "<"),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeLT, "<"),
+							Left:     &ast.ExpressionLiteralInteger{Value: 3},
+							Right:    &ast.ExpressionLiteralInteger{Value: 5},
+							Operator: "<",
+						},
+					},
+				},
+			},
+			expected: True,
+		},
+		{
+			name: "5 >= 3",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeGTEQ, ">="),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeGTEQ, ">="),
+							Left:     &ast.ExpressionLiteralInteger{Value: 5},
+							Right:    &ast.ExpressionLiteralInteger{Value: 3},
+							Operator: ">=",
+						},
+					},
+				},
+			},
+			expected: True,
+		},
+		{
+			name: "3 >= 5",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeGTEQ, ">="),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeGTEQ, ">="),
+							Left:     &ast.ExpressionLiteralInteger{Value: 3},
+							Right:    &ast.ExpressionLiteralInteger{Value: 5},
+							Operator: ">=",
+						},
+					},
+				},
+			},
+			expected: False,
+		},
+		{
+			name: "5 >= 5",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeGTEQ, ">="),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeLTEQ, "<="),
+							Left:     &ast.ExpressionLiteralInteger{Value: 5},
+							Right:    &ast.ExpressionLiteralInteger{Value: 5},
+							Operator: ">=",
+						},
+					},
+				},
+			},
+			expected: True,
+		},
+		{
+			name: "3 <= 5",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeLTEQ, "<="),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeLTEQ, "<="),
+							Left:     &ast.ExpressionLiteralInteger{Value: 3},
+							Right:    &ast.ExpressionLiteralInteger{Value: 5},
+							Operator: "<=",
+						},
+					},
+				},
+			},
+			expected: True,
+		},
+		{
+			name: "6 <= 5",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeLTEQ, "<="),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeLTEQ, "<="),
+							Left:     &ast.ExpressionLiteralInteger{Value: 6},
+							Right:    &ast.ExpressionLiteralInteger{Value: 5},
+							Operator: "<=",
+						},
+					},
+				},
+			},
+			expected: False,
+		},
+		{
+			name: "5 <= 5",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeLTEQ, "<="),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeLTEQ, "<="),
+							Left:     &ast.ExpressionLiteralInteger{Value: 5},
+							Right:    &ast.ExpressionLiteralInteger{Value: 5},
+							Operator: "<=",
+						},
+					},
+				},
+			},
+			expected: True,
+		},
 	}
 
 	for i, tc := range tests {

@@ -157,7 +157,27 @@ func (e *Evaluator) evalExpressionInfixInteger(operator string, left, right *obj
 			e.logger.Warn("division by zero")
 			return Nowt
 		}
+
 		return &objects.Integer{Value: left.Value / right.Value}
+	case "%":
+		if right.Value == 0 {
+			e.logger.Warn("modulo by zero")
+			return Nowt
+		}
+
+		return &objects.Integer{Value: left.Value % right.Value}
+	case "==":
+		return &objects.Boolean{Value: left.Value == right.Value}
+	case "!=":
+		return &objects.Boolean{Value: left.Value != right.Value}
+	case "<":
+		return &objects.Boolean{Value: left.Value < right.Value}
+	case ">":
+		return &objects.Boolean{Value: left.Value > right.Value}
+	case "<=":
+		return &objects.Boolean{Value: left.Value <= right.Value}
+	case ">=":
+		return &objects.Boolean{Value: left.Value >= right.Value}
 	default:
 		e.logger.Warn("unsupported infix operator for integers", "operator", operator)
 		return Nowt
@@ -170,6 +190,10 @@ func (e *Evaluator) evalExpressionInfixBoolean(operator string, left, right *obj
 		return &objects.Boolean{Value: left.Value == right.Value}
 	case "!=":
 		return &objects.Boolean{Value: left.Value != right.Value}
+	case "&&":
+		return &objects.Boolean{Value: left.Value && right.Value}
+	case "||":
+		return &objects.Boolean{Value: left.Value || right.Value}
 	default:
 		e.logger.Warn("unsupported infix operator for booleans", "operator", operator)
 		return Nowt
