@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/OJOMB/donkey/internal/ast"
 	"github.com/OJOMB/donkey/internal/objects"
@@ -31,6 +32,8 @@ func New(l logs.Logger) *Evaluator {
 // Eval evaluates the given AST node and returns the resulting object.
 func (e *Evaluator) Eval(node ast.Node) objects.Object {
 	switch nt := node.(type) {
+	case *ast.ExpressionLiteralInteger, *ast.ExpressionLiteralBoolean, *ast.ExpressionLiteralString, *ast.ExpressionLiteralFunction:
+		return e.evalLiteral(nt)
 	case *ast.Program:
 		return e.evalStatements(nt)
 	case *ast.StatementExpression:
@@ -51,8 +54,20 @@ func (e *Evaluator) Eval(node ast.Node) objects.Object {
 			e.logger.Error("unsupported prefix operator", "operator", nt.Token.Lexeme)
 			return Nowt
 		}
-	case *ast.ExpressionLiteralInteger, *ast.ExpressionLiteralBoolean, *ast.ExpressionLiteralString, *ast.ExpressionLiteralFunction:
-		return e.evalLiteral(nt)
+	case *ast.ExpressionInfix:
+		l := e.Eval(nt.Left)
+		if l == nil {
+			e.logger.Error("infix operator left-hand side evaluated to nil", "operator", nt.Token.Lexeme)
+			return Nowt
+		}
+
+		r := e.Eval(nt.Right)
+		if r == nil {
+			e.logger.Error("infix operator right-hand side evaluated to nil", "operator", nt.Token.Lexeme)
+			return Nowt
+		}
+
+		return e.evalExpressionInfix(nt.Operator, l, r)
 	default:
 		e.logger.Warn("unsupported AST node type", "type", fmt.Sprintf("%T", nt))
 		return Nowt
@@ -111,6 +126,69 @@ func (e *Evaluator) evalLiteral(node ast.Node) objects.Object {
 		return Nowt
 	default:
 		e.logger.Warn("unsupported literal type", "type", fmt.Sprintf("%T", nt))
+		return Nowt
+	}
+}
+
+func (e *Evaluator) evalExpressionInfix(operator string, left, right objects.Object) objects.Object {
+	switch {
+	case left.Type() == objects.TypeInteger && right.Type() == objects.TypeInteger:
+		return e.evalExpressionInfixInteger(operator, left.(*objects.Integer), right.(*objects.Integer))
+	case left.Type() == objects.TypeBoolean && right.Type() == objects.TypeBoolean:
+		return e.evalExpressionInfixBoolean(operator, left.(*objects.Boolean), right.(*objects.Boolean))
+	case left.Type() == objects.TypeString && right.Type() == objects.TypeString:
+		return e.evalExpressionInfixString(operator, left.(*objects.String), right.(*objects.String))
+	default:
+		e.logger.Warn("unsupported operand types for infix operator", "operator", operator, "leftType", left.Type(), "rightType", right.Type())
+		return Nowt
+	}
+}
+
+func (e *Evaluator) evalExpressionInfixInteger(operator string, left, right *objects.Integer) objects.Object {
+	switch operator {
+	case "+":
+		return &objects.Integer{Value: left.Value + right.Value}
+	case "-":
+		return &objects.Integer{Value: left.Value - right.Value}
+	case "*":
+		return &objects.Integer{Value: left.Value * right.Value}
+	case "/":
+		if right.Value == 0 {
+			e.logger.Warn("division by zero")
+			return Nowt
+		}
+		return &objects.Integer{Value: left.Value / right.Value}
+	default:
+		e.logger.Warn("unsupported infix operator for integers", "operator", operator)
+		return Nowt
+	}
+}
+
+func (e *Evaluator) evalExpressionInfixBoolean(operator string, left, right *objects.Boolean) objects.Object {
+	switch operator {
+	case "==":
+		return &objects.Boolean{Value: left.Value == right.Value}
+	case "!=":
+		return &objects.Boolean{Value: left.Value != right.Value}
+	default:
+		e.logger.Warn("unsupported infix operator for booleans", "operator", operator)
+		return Nowt
+	}
+}
+
+func (e *Evaluator) evalExpressionInfixString(operator string, left, right *objects.String) objects.Object {
+	switch operator {
+	case "+":
+		return &objects.String{Value: left.Value + right.Value}
+	case "-":
+		// TODO: not overly convinced about this one
+		return &objects.String{Value: strings.TrimSuffix(left.Value, right.Value)}
+	case "==":
+		return &objects.Boolean{Value: left.Value == right.Value}
+	case "!=":
+		return &objects.Boolean{Value: left.Value != right.Value}
+	default:
+		e.logger.Warn("unsupported infix operator for strings", "operator", operator)
 		return Nowt
 	}
 }

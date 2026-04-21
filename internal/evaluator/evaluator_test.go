@@ -259,9 +259,10 @@ func TestEvaluatorEvalExpressionInfixNumerical(t *testing.T) {
 					&ast.StatementExpression{
 						Token: tokens.New(tokens.TypePlus, "+"),
 						Expression: &ast.ExpressionInfix{
-							Token: tokens.New(tokens.TypePlus, "+"),
-							Left:  &ast.ExpressionLiteralInteger{Value: 1},
-							Right: &ast.ExpressionLiteralInteger{Value: 2},
+							Token:    tokens.New(tokens.TypePlus, "+"),
+							Left:     &ast.ExpressionLiteralInteger{Value: 1},
+							Right:    &ast.ExpressionLiteralInteger{Value: 2},
+							Operator: "+",
 						},
 					},
 				},
@@ -275,9 +276,10 @@ func TestEvaluatorEvalExpressionInfixNumerical(t *testing.T) {
 					&ast.StatementExpression{
 						Token: tokens.New(tokens.TypeMinus, "-"),
 						Expression: &ast.ExpressionInfix{
-							Token: tokens.New(tokens.TypeMinus, "-"),
-							Left:  &ast.ExpressionLiteralInteger{Value: 1},
-							Right: &ast.ExpressionLiteralInteger{Value: 2},
+							Token:    tokens.New(tokens.TypeMinus, "-"),
+							Left:     &ast.ExpressionLiteralInteger{Value: 1},
+							Right:    &ast.ExpressionLiteralInteger{Value: 2},
+							Operator: "-",
 						},
 					},
 				},
@@ -291,9 +293,10 @@ func TestEvaluatorEvalExpressionInfixNumerical(t *testing.T) {
 					&ast.StatementExpression{
 						Token: tokens.New(tokens.TypeAsterisk, "*"),
 						Expression: &ast.ExpressionInfix{
-							Token: tokens.New(tokens.TypeAsterisk, "*"),
-							Left:  &ast.ExpressionLiteralInteger{Value: 3},
-							Right: &ast.ExpressionLiteralInteger{Value: 2},
+							Token:    tokens.New(tokens.TypeAsterisk, "*"),
+							Left:     &ast.ExpressionLiteralInteger{Value: 3},
+							Right:    &ast.ExpressionLiteralInteger{Value: 2},
+							Operator: "*",
 						},
 					},
 				},
@@ -307,9 +310,42 @@ func TestEvaluatorEvalExpressionInfixNumerical(t *testing.T) {
 					&ast.StatementExpression{
 						Token: tokens.New(tokens.TypeForwardSlash, "/"),
 						Expression: &ast.ExpressionInfix{
-							Token: tokens.New(tokens.TypeForwardSlash, "/"),
-							Left:  &ast.ExpressionLiteralInteger{Value: 4},
-							Right: &ast.ExpressionLiteralInteger{Value: 2},
+							Token:    tokens.New(tokens.TypeForwardSlash, "/"),
+							Left:     &ast.ExpressionLiteralInteger{Value: 4},
+							Right:    &ast.ExpressionLiteralInteger{Value: 2},
+							Operator: "/",
+						},
+					},
+				},
+			},
+			expected: &objects.Integer{Value: 2},
+		},
+		{
+			name: "4 / 2 * 3 + 1 - 5",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeMinus, "-"),
+						Expression: &ast.ExpressionInfix{
+							Token: tokens.New(tokens.TypeMinus, "-"),
+							Left: &ast.ExpressionInfix{
+								Token: tokens.New(tokens.TypePlus, "+"),
+								Left: &ast.ExpressionInfix{
+									Token: tokens.New(tokens.TypeAsterisk, "*"),
+									Left: &ast.ExpressionInfix{
+										Token:    tokens.New(tokens.TypeForwardSlash, "/"),
+										Left:     &ast.ExpressionLiteralInteger{Value: 4},
+										Right:    &ast.ExpressionLiteralInteger{Value: 2},
+										Operator: "/",
+									},
+									Right:    &ast.ExpressionLiteralInteger{Value: 3},
+									Operator: "*",
+								},
+								Right:    &ast.ExpressionLiteralInteger{Value: 1},
+								Operator: "+",
+							},
+							Right:    &ast.ExpressionLiteralInteger{Value: 5},
+							Operator: "-",
 						},
 					},
 				},
@@ -325,6 +361,236 @@ func TestEvaluatorEvalExpressionInfixNumerical(t *testing.T) {
 
 			assert.Equal(t, tc.expected.Type(), result.Type())
 			assert.Equal(t, tc.expected.Inspect(), result.Inspect())
+		})
+	}
+}
+
+func TestEvaluatorEvalExpressionInfixBoolean(t *testing.T) {
+	type testCase struct {
+		name     string
+		input    *ast.Program
+		expected objects.Object
+	}
+
+	tests := []testCase{
+		{
+			name: "true == true",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeEq, "=="),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeEq, "=="),
+							Left:     &ast.ExpressionLiteralBoolean{Value: true},
+							Right:    &ast.ExpressionLiteralBoolean{Value: true},
+							Operator: "==",
+						},
+					},
+				},
+			},
+			expected: True,
+		},
+		{
+			name: "true == false",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeEq, "=="),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeEq, "=="),
+							Left:     &ast.ExpressionLiteralBoolean{Value: true},
+							Right:    &ast.ExpressionLiteralBoolean{Value: false},
+							Operator: "==",
+						},
+					},
+				},
+			},
+			expected: False,
+		},
+		{
+			name: "true != false",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeNotEq, "!="),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeNotEq, "!="),
+							Left:     &ast.ExpressionLiteralBoolean{Value: true},
+							Right:    &ast.ExpressionLiteralBoolean{Value: false},
+							Operator: "!=",
+						},
+					},
+				},
+			},
+			expected: True,
+		},
+		{
+			name: "true != true",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeNotEq, "!="),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeNotEq, "!="),
+							Left:     &ast.ExpressionLiteralBoolean{Value: true},
+							Right:    &ast.ExpressionLiteralBoolean{Value: true},
+							Operator: "!=",
+						},
+					},
+				},
+			},
+			expected: False,
+		},
+	}
+
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
+			evaluator := New(nil)
+			result := evaluator.Eval(tc.input)
+
+			assert.Equal(t, tc.expected.Type(), result.Type())
+			assert.Equal(t, tc.expected.Inspect(), result.Inspect())
+		})
+	}
+}
+
+func TestEvaluatorEvalExpressionInfixString(t *testing.T) {
+	type testCase struct {
+		name     string
+		input    *ast.Program
+		expected objects.Object
+	}
+
+	tests := []testCase{
+		{
+			name: "hello + world",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypePlus, "+"),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypePlus, "+"),
+							Left:     &ast.ExpressionLiteralString{Value: "hello"},
+							Right:    &ast.ExpressionLiteralString{Value: "world"},
+							Operator: "+",
+						},
+					},
+				},
+			},
+			expected: &objects.String{Value: "helloworld"},
+		},
+		{
+			name: "foobar - bar",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeMinus, "-"),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeMinus, "-"),
+							Left:     &ast.ExpressionLiteralString{Value: "foobar"},
+							Right:    &ast.ExpressionLiteralString{Value: "bar"},
+							Operator: "-",
+						},
+					},
+				},
+			},
+			expected: &objects.String{Value: "foo"},
+		},
+		{
+			name: "foobar - foo",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeMinus, "-"),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeMinus, "-"),
+							Left:     &ast.ExpressionLiteralString{Value: "foobar"},
+							Right:    &ast.ExpressionLiteralString{Value: "foo"},
+							Operator: "-",
+						},
+					},
+				},
+			},
+			expected: &objects.String{Value: "foobar"},
+		},
+		{
+			name: "foobar == foobar",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeEq, "=="),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeEq, "=="),
+							Left:     &ast.ExpressionLiteralString{Value: "foobar"},
+							Right:    &ast.ExpressionLiteralString{Value: "foobar"},
+							Operator: "==",
+						},
+					},
+				},
+			},
+			expected: True,
+		},
+		{
+			name: "foobar == barfoo",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeEq, "=="),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeEq, "=="),
+							Left:     &ast.ExpressionLiteralString{Value: "foobar"},
+							Right:    &ast.ExpressionLiteralString{Value: "barfoo"},
+							Operator: "==",
+						},
+					},
+				},
+			},
+			expected: False,
+		},
+		{
+			name: "foobar != barfoo",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeNotEq, "!="),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeNotEq, "!="),
+							Left:     &ast.ExpressionLiteralString{Value: "foobar"},
+							Right:    &ast.ExpressionLiteralString{Value: "barfoo"},
+							Operator: "!=",
+						},
+					},
+				},
+			},
+			expected: True,
+		},
+		{
+			name: "foobar != foobar",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeNotEq, "!="),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeNotEq, "!="),
+							Left:     &ast.ExpressionLiteralString{Value: "foobar"},
+							Right:    &ast.ExpressionLiteralString{Value: "foobar"},
+							Operator: "!=",
+						},
+					},
+				},
+			},
+			expected: False,
+		},
+	}
+
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
+			evaluator := New(nil)
+			result := evaluator.Eval(tc.input)
+
+			assert.Equal(t, tc.expected.Type(), result.Type())
+			assert.Equal(t, tc.expected.Inspect(), result.Inspect())
+
 		})
 	}
 }
