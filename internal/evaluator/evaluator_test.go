@@ -1354,3 +1354,75 @@ func TestEvaluatorEvalReturnStatements(t *testing.T) {
 		})
 	}
 }
+
+func TestEvaluatorEvalErrorHandling(t *testing.T) {
+	type testCase struct {
+		name     string
+		input    *ast.Program
+		expected objects.Object
+	}
+
+	tests := []testCase{
+		{
+			name: "10 / 0",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeForwardSlash, "/"),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeForwardSlash, "/"),
+							Left:     &ast.ExpressionLiteralInteger{Value: 10},
+							Right:    &ast.ExpressionLiteralInteger{Value: 0},
+							Operator: "/",
+						},
+					},
+				},
+			},
+			expected: &objects.ErrorValue{Message: "division by zero"},
+		},
+		{
+			name: "10 % 0",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypePercent, "%"),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypePercent, "%"),
+							Left:     &ast.ExpressionLiteralInteger{Value: 10},
+							Right:    &ast.ExpressionLiteralInteger{Value: 0},
+							Operator: "%",
+						},
+					},
+				},
+			},
+			expected: &objects.ErrorValue{Message: "modulo by zero"},
+		},
+		{
+			name: "type mismatch: 5 + true",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypePlus, "+"),
+						Expression: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypePlus, "+"),
+							Left:     &ast.ExpressionLiteralInteger{Value: 5},
+							Right:    &ast.ExpressionLiteralBoolean{Value: true},
+							Operator: "+",
+						},
+					},
+				},
+			},
+			expected: &objects.ErrorValue{Message: "type mismatch for infix operator: INTEGER + BOOLEAN"},
+		},
+	}
+
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
+			evaluator := New(nil)
+			result := evaluator.Eval(tc.input)
+
+			assert.Equal(t, tc.expected.Type(), result.Type())
+			assert.Equal(t, tc.expected.Inspect(), result.Inspect())
+		})
+	}
+}

@@ -18,6 +18,8 @@ const (
 	TypeNowt Type = "NOWT"
 	// TypeReturnValue represents the type of a return value object
 	TypeReturnValue Type = "RETURN_VALUE"
+	// TypeErrorValue represents the type of an error value object
+	TypeErrorValue Type = "ERROR_VALUE"
 )
 
 // Object is the interface that all objects in the Donkey programming language must implement.

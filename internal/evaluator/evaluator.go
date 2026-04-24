@@ -46,7 +46,7 @@ func (e *Evaluator) Eval(node ast.Node) objects.Object {
 		right := e.Eval(nt.Right)
 		if right == nil {
 			e.logger.Error("prefix operator right-hand side evaluated to nil", "operator", nt.Token.Lexeme)
-			return Nowt
+			return newError("prefix operator right-hand side evaluated to nil: op:%s r:%v", nt.Token.Lexeme, right)
 		}
 
 		switch nt.Token.Type {
@@ -56,19 +56,19 @@ func (e *Evaluator) Eval(node ast.Node) objects.Object {
 			return e.evalExpressionPrefixMinus(right)
 		default:
 			e.logger.Error("unsupported prefix operator", "operator", nt.Token.Lexeme)
-			return Nowt
+			return newError("unsupported prefix operator: %s", nt.Token.Lexeme)
 		}
 	case *ast.ExpressionInfix:
 		l := e.Eval(nt.Left)
 		if l == nil {
 			e.logger.Error("infix operator left-hand side evaluated to nil", "operator", nt.Token.Lexeme)
-			return Nowt
+			return newError("infix operator left-hand side evaluated to nil: op:%s l:%v", nt.Token.Lexeme, l)
 		}
 
 		r := e.Eval(nt.Right)
 		if r == nil {
 			e.logger.Error("infix operator right-hand side evaluated to nil", "operator", nt.Token.Lexeme)
-			return Nowt
+			return newError("infix operator right-hand side evaluated to nil: op:%s r:%v", nt.Token.Lexeme, r)
 		}
 
 		return e.evalExpressionInfix(nt.Operator, l, r)
@@ -85,8 +85,8 @@ func (e *Evaluator) Eval(node ast.Node) objects.Object {
 
 		return &objects.ReturnValue{Value: value}
 	default:
-		e.logger.Warn("unsupported AST node type", "type", fmt.Sprintf("%T", nt))
-		return Nowt
+		e.logger.Error("unsupported AST node type", "type", fmt.Sprintf("%T", nt))
+		return newError("unsupported AST node type: %T", nt)
 	}
 }
 
@@ -99,6 +99,10 @@ func (e *Evaluator) evalStatements(program *ast.Program) objects.Object {
 		if returnValue, ok := result.(*objects.ReturnValue); ok {
 			return returnValue.Value
 		}
+
+		if _, ok := result.(*objects.ErrorValue); ok {
+			return result
+		}
 	}
 
 	return result
@@ -107,7 +111,7 @@ func (e *Evaluator) evalStatements(program *ast.Program) objects.Object {
 func (e *Evaluator) evalExpressionPrefixBang(right objects.Object) objects.Object {
 	if right.Type() != objects.TypeBoolean {
 		e.logger.Warn("unsupported operand type for ! operator", "type", right.Type())
-		return Nowt
+		return newError("unsupported operand type for ! operator: %s", right.Type())
 	}
 
 	switch right {
@@ -116,14 +120,14 @@ func (e *Evaluator) evalExpressionPrefixBang(right objects.Object) objects.Objec
 	case False:
 		return True
 	default:
-		return Nowt
+		return newError("unsupported boolean value: %s", right.Inspect())
 	}
 }
 
 func (e *Evaluator) evalExpressionPrefixMinus(right objects.Object) objects.Object {
 	if right.Type() != objects.TypeInteger {
 		e.logger.Warn("unsupported operand type for - operator", "type", right.Type())
-		return Nowt
+		return newError("unsupported operand type for - operator: %s", right.Type())
 	}
 
 	value := right.(*objects.Integer).Value
@@ -151,6 +155,16 @@ func (e *Evaluator) evalLiteral(node ast.Node) objects.Object {
 }
 
 func (e *Evaluator) evalExpressionInfix(operator string, left, right objects.Object) objects.Object {
+	if left == nil || right == nil {
+		e.logger.Error("infix operator operands evaluated to nil", "operator", operator, "leftNil", left == nil, "rightNil", right == nil)
+		return newError("infix operator operands evaluated to nil: op:%s l:%v r:%v", operator, left, right)
+	}
+
+	if left.Type() != right.Type() {
+		e.logger.Warn("type mismatch for infix operator", "operator", operator, "leftType", left.Type(), "rightType", right.Type())
+		return newError("type mismatch for infix operator: %s %s %s", left.Type(), operator, right.Type())
+	}
+
 	switch {
 	case left.Type() == objects.TypeInteger && right.Type() == objects.TypeInteger:
 		return e.evalExpressionInfixInteger(operator, left.(*objects.Integer), right.(*objects.Integer))
@@ -160,7 +174,7 @@ func (e *Evaluator) evalExpressionInfix(operator string, left, right objects.Obj
 		return e.evalExpressionInfixString(operator, left.(*objects.String), right.(*objects.String))
 	default:
 		e.logger.Warn("unsupported operand types for infix operator", "operator", operator, "leftType", left.Type(), "rightType", right.Type())
-		return Nowt
+		return newError("unsupported operand types for infix operator: %s %s %s", left.Type(), operator, right.Type())
 	}
 }
 
@@ -175,14 +189,14 @@ func (e *Evaluator) evalExpressionInfixInteger(operator string, left, right *obj
 	case "/":
 		if right.Value == 0 {
 			e.logger.Warn("division by zero")
-			return Nowt
+			return newError("division by zero")
 		}
 
 		return &objects.Integer{Value: left.Value / right.Value}
 	case "%":
 		if right.Value == 0 {
 			e.logger.Warn("modulo by zero")
-			return Nowt
+			return newError("modulo by zero")
 		}
 
 		return &objects.Integer{Value: left.Value % right.Value}
@@ -215,7 +229,7 @@ func (e *Evaluator) evalExpressionInfixInteger(operator string, left, right *obj
 		return &objects.Integer{Value: left.Value | right.Value}
 	default:
 		e.logger.Warn("unsupported infix operator for integers", "operator", operator)
-		return Nowt
+		return newError("unsupported infix operator for integers: %s", operator)
 	}
 }
 
@@ -231,7 +245,7 @@ func (e *Evaluator) evalExpressionInfixBoolean(operator string, left, right *obj
 		return &objects.Boolean{Value: left.Value || right.Value}
 	default:
 		e.logger.Warn("unsupported infix operator for booleans", "operator", operator)
-		return Nowt
+		return newError("unsupported infix operator for booleans: %s", operator)
 	}
 }
 
@@ -248,7 +262,7 @@ func (e *Evaluator) evalExpressionInfixString(operator string, left, right *obje
 		return &objects.Boolean{Value: left.Value != right.Value}
 	default:
 		e.logger.Warn("unsupported infix operator for strings", "operator", operator)
-		return Nowt
+		return newError("unsupported infix operator for strings: %s", operator)
 	}
 }
 
@@ -257,12 +271,12 @@ func (e *Evaluator) evalExpressionIf(node *ast.ExpressionIf) objects.Object {
 		condition := e.Eval(branch.Condition)
 		if condition == nil {
 			e.logger.Error("if condition evaluated to nil")
-			return Nowt
+			return newError("if condition evaluated to nil")
 		}
 
 		if condition.Type() != objects.TypeBoolean {
 			e.logger.Warn("if condition did not evaluate to a boolean", "type", condition.Type())
-			return Nowt
+			return newError("if condition did not evaluate to a boolean: %s", condition.Type())
 		}
 
 		if condition.(*objects.Boolean).Value {
