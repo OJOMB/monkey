@@ -3,7 +3,7 @@
 Writing an interpreter (and eventually compiler) closely based on the Monkey programming language, as described in the book [Writing An Interpreter In Go](https://interpreterbook.com/).
 
 
-install with:
+install the donkey repl with:
 ```bash
 go install github.com/OJOMB/donkey/cmd/donkeyrepl@latest
 
