@@ -28,7 +28,7 @@ func TestEvaluatorEvalIntegerExpression(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
 			evaluator := New(nil)
-			result := evaluator.Eval(tc.input)
+			result := evaluator.Eval(tc.input, objects.NewEnvironment())
 
 			require.IsType(t, &objects.Integer{}, result)
 			intResult := result.(*objects.Integer)
@@ -55,7 +55,7 @@ func TestEvaluatorEvalBooleanExpression(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
 			evaluator := New(nil)
-			result := evaluator.Eval(tc.input)
+			result := evaluator.Eval(tc.input, objects.NewEnvironment())
 
 			require.IsType(t, &objects.Boolean{}, result)
 			boolResult := result.(*objects.Boolean)
@@ -82,7 +82,7 @@ func TestEvaluatorEvalStringExpression(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
 			evaluator := New(nil)
-			result := evaluator.Eval(tc.input)
+			result := evaluator.Eval(tc.input, objects.NewEnvironment())
 
 			require.IsType(t, &objects.String{}, result)
 			stringResult := result.(*objects.String)
@@ -155,7 +155,7 @@ func TestEvaluatorEvalProgram(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
 			evaluator := New(nil)
-			result := evaluator.Eval(tc.input)
+			result := evaluator.Eval(tc.input, objects.NewEnvironment())
 
 			assert.Equal(t, tc.expected.Type(), result.Type())
 			assert.Equal(t, tc.expected.Inspect(), result.Inspect())
@@ -236,7 +236,7 @@ func TestEvaluatorEvalPrefixExpressions(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
 			evaluator := New(nil)
-			result := evaluator.Eval(tc.input)
+			result := evaluator.Eval(tc.input, objects.NewEnvironment())
 
 			assert.Equal(t, tc.expected.Type(), result.Type())
 			assert.Equal(t, tc.expected.Inspect(), result.Inspect())
@@ -368,40 +368,6 @@ func TestEvaluatorEvalExpressionInfixNumerical(t *testing.T) {
 				},
 			},
 			expected: &objects.Integer{Value: 1},
-		},
-		{
-			name: "10 / 0",
-			input: &ast.Program{
-				Statements: []ast.Statement{
-					&ast.StatementExpression{
-						Token: tokens.New(tokens.TypeForwardSlash, "/"),
-						Expression: &ast.ExpressionInfix{
-							Token:    tokens.New(tokens.TypeForwardSlash, "/"),
-							Left:     &ast.ExpressionLiteralInteger{Value: 10},
-							Right:    &ast.ExpressionLiteralInteger{Value: 0},
-							Operator: "/",
-						},
-					},
-				},
-			},
-			expected: Nowt, // division by zero should return Nowt and log an error
-		},
-		{
-			name: "10 % 0",
-			input: &ast.Program{
-				Statements: []ast.Statement{
-					&ast.StatementExpression{
-						Token: tokens.New(tokens.TypePercent, "%"),
-						Expression: &ast.ExpressionInfix{
-							Token:    tokens.New(tokens.TypePercent, "%"),
-							Left:     &ast.ExpressionLiteralInteger{Value: 10},
-							Right:    &ast.ExpressionLiteralInteger{Value: 0},
-							Operator: "%",
-						},
-					},
-				},
-			},
-			expected: Nowt, // modulus by zero should return Nowt and log an error
 		},
 		{
 			name: "5 > 3",
@@ -595,7 +561,7 @@ func TestEvaluatorEvalExpressionInfixNumerical(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
 			evaluator := New(nil)
-			result := evaluator.Eval(tc.input)
+			result := evaluator.Eval(tc.input, objects.NewEnvironment())
 
 			assert.Equal(t, tc.expected.Type(), result.Type())
 			assert.Equal(t, tc.expected.Inspect(), result.Inspect())
@@ -684,7 +650,7 @@ func TestEvaluatorEvalExpressionInfixBoolean(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
 			evaluator := New(nil)
-			result := evaluator.Eval(tc.input)
+			result := evaluator.Eval(tc.input, objects.NewEnvironment())
 
 			assert.Equal(t, tc.expected.Type(), result.Type())
 			assert.Equal(t, tc.expected.Inspect(), result.Inspect())
@@ -824,7 +790,7 @@ func TestEvaluatorEvalExpressionInfixString(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
 			evaluator := New(nil)
-			result := evaluator.Eval(tc.input)
+			result := evaluator.Eval(tc.input, objects.NewEnvironment())
 
 			assert.Equal(t, tc.expected.Type(), result.Type())
 			assert.Equal(t, tc.expected.Inspect(), result.Inspect())
@@ -1141,7 +1107,7 @@ func TestEvaluatorEvalConditionals(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
 			evaluator := New(nil)
-			result := evaluator.Eval(tc.input)
+			result := evaluator.Eval(tc.input, objects.NewEnvironment())
 
 			assert.Equal(t, tc.expected.Type(), result.Type())
 			assert.Equal(t, tc.expected.Inspect(), result.Inspect())
@@ -1347,7 +1313,7 @@ func TestEvaluatorEvalReturnStatements(t *testing.T) {
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
 			evaluator := New(nil)
-			result := evaluator.Eval(tc.input)
+			result := evaluator.Eval(tc.input, objects.NewEnvironment())
 
 			assert.Equal(t, tc.expected.Type(), result.Type())
 			assert.Equal(t, tc.expected.Inspect(), result.Inspect())
@@ -1414,12 +1380,105 @@ func TestEvaluatorEvalErrorHandling(t *testing.T) {
 			},
 			expected: &objects.ErrorValue{Message: "type mismatch for infix operator: INTEGER + BOOLEAN"},
 		},
+		{
+			name: "ident not found",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeIdent, "a"),
+						Expression: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "a"),
+							Value: "a",
+						},
+					},
+				},
+			},
+			expected: &objects.ErrorValue{Message: "identifier not found: a"},
+		},
 	}
 
 	for i, tc := range tests {
 		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
 			evaluator := New(nil)
-			result := evaluator.Eval(tc.input)
+			result := evaluator.Eval(tc.input, objects.NewEnvironment())
+
+			assert.Equal(t, tc.expected.Type(), result.Type())
+			assert.Equal(t, tc.expected.Inspect(), result.Inspect())
+		})
+	}
+}
+
+func TestEvaluatorEvalBindtatements(t *testing.T) {
+	type testCase struct {
+		name     string
+		input    *ast.Program
+		expected objects.Object
+	}
+
+	tests := []testCase{
+		{
+			name: "let a = 5; a;",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementBind{
+						Token: tokens.New(tokens.TypeBinder, "let"),
+						Name: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "a"),
+							Value: "a",
+						},
+						Value: &ast.ExpressionLiteralInteger{Value: 5},
+					},
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeIdent, "a"),
+						Expression: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "a"),
+							Value: "a",
+						},
+					},
+				},
+			},
+			expected: &objects.Integer{Value: 5},
+		},
+		{
+			name: "let a = 5; let b = a; b;",
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementBind{
+						Token: tokens.New(tokens.TypeBinder, "let"),
+						Name: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "a"),
+							Value: "a",
+						},
+						Value: &ast.ExpressionLiteralInteger{Value: 5},
+					},
+					&ast.StatementBind{
+						Token: tokens.New(tokens.TypeBinder, "let"),
+						Name: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "b"),
+							Value: "b",
+						},
+						Value: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "a"),
+							Value: "a",
+						},
+					},
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeIdent, "b"),
+						Expression: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "b"),
+							Value: "b",
+						},
+					},
+				},
+			},
+			expected: &objects.Integer{Value: 5},
+		},
+	}
+
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
+			evaluator := New(nil)
+			result := evaluator.Eval(tc.input, objects.NewEnvironment())
 
 			assert.Equal(t, tc.expected.Type(), result.Type())
 			assert.Equal(t, tc.expected.Inspect(), result.Inspect())

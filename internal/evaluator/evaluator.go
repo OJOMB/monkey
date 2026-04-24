@@ -31,19 +31,20 @@ func New(l logs.Logger) *Evaluator {
 	}
 
 	return &Evaluator{logger: l.With("component", "evaluator")}
+
 }
 
 // Eval evaluates the given AST node and returns the resulting object.
-func (e *Evaluator) Eval(node ast.Node) objects.Object {
+func (e *Evaluator) Eval(node ast.Node, env *objects.Environment) objects.Object {
 	switch nt := node.(type) {
 	case *ast.ExpressionLiteralInteger, *ast.ExpressionLiteralBoolean, *ast.ExpressionLiteralString, *ast.ExpressionLiteralFunction:
 		return e.evalLiteral(nt)
 	case *ast.Program:
-		return e.evalStatements(nt)
+		return e.evalStatements(nt, env)
 	case *ast.StatementExpression:
-		return e.Eval(nt.Expression)
+		return e.Eval(nt.Expression, env)
 	case *ast.ExpressionPrefix:
-		right := e.Eval(nt.Right)
+		right := e.Eval(nt.Right, env)
 		if right == nil {
 			e.logger.Error("prefix operator right-hand side evaluated to nil", "operator", nt.Token.Lexeme)
 			return newError("prefix operator right-hand side evaluated to nil: op:%s r:%v", nt.Token.Lexeme, right)
@@ -58,14 +59,22 @@ func (e *Evaluator) Eval(node ast.Node) objects.Object {
 			e.logger.Error("unsupported prefix operator", "operator", nt.Token.Lexeme)
 			return newError("unsupported prefix operator: %s", nt.Token.Lexeme)
 		}
+	case *ast.ExpressionIdentifier:
+		obj, ok := env.Get(nt.Value)
+		if !ok {
+			e.logger.Warn("identifier not found in environment", "name", nt.Value)
+			return newError("identifier not found: %s", nt.Value)
+		}
+
+		return obj
 	case *ast.ExpressionInfix:
-		l := e.Eval(nt.Left)
+		l := e.Eval(nt.Left, env)
 		if l == nil {
 			e.logger.Error("infix operator left-hand side evaluated to nil", "operator", nt.Token.Lexeme)
 			return newError("infix operator left-hand side evaluated to nil: op:%s l:%v", nt.Token.Lexeme, l)
 		}
 
-		r := e.Eval(nt.Right)
+		r := e.Eval(nt.Right, env)
 		if r == nil {
 			e.logger.Error("infix operator right-hand side evaluated to nil", "operator", nt.Token.Lexeme)
 			return newError("infix operator right-hand side evaluated to nil: op:%s r:%v", nt.Token.Lexeme, r)
@@ -73,11 +82,19 @@ func (e *Evaluator) Eval(node ast.Node) objects.Object {
 
 		return e.evalExpressionInfix(nt.Operator, l, r)
 	case *ast.ExpressionIf:
-		return e.evalExpressionIf(nt)
+		return e.evalExpressionIf(nt, env)
 	case *ast.StatementBlock:
-		return e.evalStatementBlock(nt)
+		return e.evalStatementBlock(nt, env)
+	case *ast.StatementBind:
+		value := e.Eval(nt.Value, env)
+		if value == nil {
+			e.logger.Error("bind statement value evaluated to nil", "name", nt.Name.Value)
+			return newError("bind statement value evaluated to nil: name:%s v:%v", nt.Name.Value, value)
+		}
+
+		return env.Bind(nt.Name.Value, value)
 	case *ast.StatementReturn:
-		value := e.Eval(nt.Value)
+		value := e.Eval(nt.Value, env)
 		if value == nil {
 			e.logger.Error("return statement value evaluated to nil")
 			return Nowt
@@ -90,11 +107,11 @@ func (e *Evaluator) Eval(node ast.Node) objects.Object {
 	}
 }
 
-func (e *Evaluator) evalStatements(program *ast.Program) objects.Object {
+func (e *Evaluator) evalStatements(program *ast.Program, env *objects.Environment) objects.Object {
 	var result objects.Object
 	for i, stmt := range program.Statements {
 		e.logger.Debug("evaluating statement", "index", i, "statement", stmt.String())
-		result = e.Eval(stmt)
+		result = e.Eval(stmt, env)
 
 		if returnValue, ok := result.(*objects.ReturnValue); ok {
 			return returnValue.Value
@@ -266,9 +283,9 @@ func (e *Evaluator) evalExpressionInfixString(operator string, left, right *obje
 	}
 }
 
-func (e *Evaluator) evalExpressionIf(node *ast.ExpressionIf) objects.Object {
+func (e *Evaluator) evalExpressionIf(node *ast.ExpressionIf, env *objects.Environment) objects.Object {
 	for _, branch := range node.Branches {
-		condition := e.Eval(branch.Condition)
+		condition := e.Eval(branch.Condition, env)
 		if condition == nil {
 			e.logger.Error("if condition evaluated to nil")
 			return newError("if condition evaluated to nil")
@@ -280,22 +297,22 @@ func (e *Evaluator) evalExpressionIf(node *ast.ExpressionIf) objects.Object {
 		}
 
 		if condition.(*objects.Boolean).Value {
-			return e.evalStatementBlock(branch.Consequence)
+			return e.evalStatementBlock(branch.Consequence, env)
 		}
 	}
 
 	if node.Alternative != nil {
-		return e.evalStatementBlock(node.Alternative)
+		return e.evalStatementBlock(node.Alternative, env)
 	}
 
 	return Nowt
 }
 
-func (e *Evaluator) evalStatementBlock(block *ast.StatementBlock) objects.Object {
+func (e *Evaluator) evalStatementBlock(block *ast.StatementBlock, env *objects.Environment) objects.Object {
 	var result objects.Object
 	for i, stmt := range block.Statements {
 		e.logger.Debug("evaluating statement in block", "index", i, "statement", stmt.String())
-		result = e.Eval(stmt)
+		result = e.Eval(stmt, env)
 
 		if returnValue, ok := result.(*objects.ReturnValue); ok {
 			return returnValue

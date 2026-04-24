@@ -6,6 +6,7 @@ import (
 
 	"github.com/OJOMB/donkey/internal/evaluator"
 	"github.com/OJOMB/donkey/internal/lexer"
+	"github.com/OJOMB/donkey/internal/objects"
 	"github.com/OJOMB/donkey/internal/parser"
 	"github.com/OJOMB/donkey/pkg/logs"
 )
@@ -96,7 +97,8 @@ func (r *Repl) Start() {
 
 		// now we have a valid AST, we can evaluate it and print the result
 		e := evaluator.New(r.logger)
-		result := e.Eval(program)
+		globalEnv := objects.NewEnvironment()
+		result := e.Eval(program, globalEnv)
 		if result != nil {
 			if _, err := r.out.Write([]byte(result.Inspect() + "\n")); err != nil {
 				r.logger.Error("failed to write evaluation result", "error", err)
