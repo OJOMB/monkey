@@ -27,6 +27,10 @@ func TestParseStatements(t *testing.T) {
 					var y = "hello";
 					var __foobar__ = false;
 					var myFunction = fn(x) { return x + 1; };
+
+					{
+						x = 10;
+					}
 				`,
 			expectedOutput: &ast.Program{
 				Statements: []ast.Statement{
@@ -96,6 +100,21 @@ func TestParseStatements(t *testing.T) {
 							}},
 						},
 					},
+					&ast.StatementBlock{
+						Statements: []ast.Statement{
+							&ast.StatementRebind{
+								Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "x"},
+								Name: &ast.ExpressionIdentifier{
+									Token: tokens.Token{Type: "IDENT", Lexeme: "x"},
+									Value: "x",
+								},
+								Value: &ast.ExpressionLiteralInteger{
+									Token: tokens.Token{Type: "INT", Lexeme: "10"},
+									Value: 10,
+								},
+							},
+						},
+					},
 				},
 			},
 			expectedErrs: []string{},
@@ -134,23 +153,6 @@ func TestParseStatements(t *testing.T) {
 			},
 			expectedErrs: []string{},
 		},
-		// TODO see how complex it is to add support for rebind statements
-		// {
-		// 	name: "rebind statements",
-		// 	input: `
-		// 		x = 5;
-		// 		y = "kool";
-		// 		__foobar__ = true;
-		// 	`,
-		// 	expectedOutput: &ast.Program{
-		// 		Statements: []ast.Statement{},
-		// 	},
-		// 	expectedErrs: []string{
-		// 		"unexpected token: =",
-		// 		"unexpected token: =",
-		// 		"unexpected token: =",
-		// 	},
-		// },
 	}
 
 	for _, tc := range testCases {

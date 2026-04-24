@@ -6,9 +6,9 @@ import (
 	"github.com/OJOMB/donkey/internal/tokens"
 )
 
-// stringFmtLetStatement is the format string used for representing a let statement in the AST when converting it to a string.
+// stringFmtBindStatement is the format string used for representing a bind statement in the AST when converting it to a string.
 // var <ExpressionIdentifier> = <Expression>;
-const stringFmtLetStatement = "var %s = %s;"
+const stringFmtBindStatement = "var %s = %s;"
 
 // StatementBind represents a var statement in the AST. It contains a token, an identifier for the variable name, and an expression for the value.
 // For example, in the var statement "var x = 5;", the token would be the "var" token, the Name would be an ExpressionIdentifier representing "x", and the Value would be an ExpressionLiteralInteger representing "5".
@@ -30,5 +30,5 @@ func (ls *StatementBind) statementNode() {}
 func (ls *StatementBind) TokenLexeme() string { return ls.Token.Lexeme }
 
 func (ls *StatementBind) String() string {
-	return fmt.Sprintf(stringFmtLetStatement, ls.Name.String(), ls.Value.String())
+	return fmt.Sprintf(stringFmtBindStatement, ls.Name.String(), ls.Value.String())
 }

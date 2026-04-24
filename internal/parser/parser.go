@@ -119,11 +119,13 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseStatementLet()
 	case tokens.TypeReturn:
 		return p.parseStatementReturn()
-	// case tokens.TypeIdent:
-	// 	// TODO: can we add rebinding here? statements such as x = 42;
-	// 	//
-	// 	fallthrough
+	case tokens.TypeLBrace:
+		return p.parseBlockStatement()
 	default:
+		if p.peekToken.Type == tokens.TypeAssign {
+			return p.parseStatementReBind()
+		}
+
 		// if the statement doesn't match any of the above types, we assume it's an expression statement and try to parse it as such
 		// this would be something like foo(5 + 5); or 5 + 5; or "foobar";
 		stmt = p.parseExpressionStatement()
@@ -510,4 +512,32 @@ func (p *Parser) parseFunctionParameters() []*ast.ExpressionIdentifier {
 	}
 
 	return identifiers
+}
+
+func (p *Parser) parseStatementReBind() *ast.StatementRebind {
+	if p.peekToken.Type != tokens.TypeAssign {
+		return nil
+	}
+
+	reBind := &ast.StatementRebind{Token: p.currToken}
+
+	// the current token should be the identifier being rebound, and the peek token should be the assign token
+	if p.currToken.Type != tokens.TypeIdent {
+		return nil
+	}
+
+	reBind.Name = &ast.ExpressionIdentifier{
+		Token: p.currToken,
+		Value: p.currToken.Lexeme,
+	}
+
+	p.nextToken() // advance to the assign token
+	p.nextToken() // advance to the expression being assigned
+
+	reBind.Value = p.parseExpression(precedenceLowest)
+	if reBind.Value == nil {
+		return nil
+	}
+
+	return reBind
 }

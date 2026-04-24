@@ -58,6 +58,8 @@ func (r *Repl) Start() {
 	_, _ = r.out.Write([]byte(donkeyASCII))
 	_, _ = r.out.Write([]byte("Welcome to the Donkey programming language!\n"))
 
+	// this is the global env
+	var env *objects.Environment
 	// loop indefinitely, reading input from the user and processing it until we encounter a SIGINT (Ctrl+C)
 	for {
 		if _, err := r.out.Write([]byte(Prompt)); err != nil {
@@ -97,8 +99,7 @@ func (r *Repl) Start() {
 
 		// now we have a valid AST, we can evaluate it and print the result
 		e := evaluator.New(r.logger)
-		globalEnv := objects.NewEnvironment()
-		result := e.Eval(program, globalEnv)
+		result := e.Eval(program, objects.NewEnclosedEnvironment(env))
 		if result != nil {
 			if _, err := r.out.Write([]byte(result.Inspect() + "\n")); err != nil {
 				r.logger.Error("failed to write evaluation result", "error", err)
