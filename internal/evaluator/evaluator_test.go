@@ -1650,6 +1650,89 @@ func TestEvaluatorEvalWhileLoops(t *testing.T) {
 			},
 			expected: &objects.Integer{Value: 5},
 		},
+		// TODO: re-enable when we have break statements implemented
+		// {
+		// 	name: `while loop with no conditional
+		// 		let i = 0;
+		// 		while {
+		// 			i = i + 1;
+		// 			if (i == 5) {
+		// 				break;
+		// 			}
+		// 		}
+
+		// 		i;
+		// 	`,
+		// 	input: &ast.Program{
+		// 		Statements: []ast.Statement{
+		// 			&ast.StatementBind{
+		// 				Token: tokens.New(tokens.TypeBind, "let"),
+		// 				Name: &ast.ExpressionIdentifier{
+		// 					Token: tokens.New(tokens.TypeIdent, "i"),
+		// 					Value: "i",
+		// 				},
+		// 				Value: &ast.ExpressionLiteralInteger{Value: 0},
+		// 			},
+		// 			&ast.StatementWhile{
+		// 				Token:     tokens.New(tokens.TypeWhile, "while"),
+		// 				Condition: nil,
+		// 				Body: &ast.StatementBlock{
+		// 					Statements: []ast.Statement{
+		// 						&ast.StatementRebind{
+		// 							Token: tokens.New(tokens.TypeIdent, "i"),
+		// 							Name: &ast.ExpressionIdentifier{
+		// 								Token: tokens.New(tokens.TypeIdent, "i"),
+		// 								Value: "i",
+		// 							},
+		// 							Value: &ast.ExpressionInfix{
+		// 								Token:    tokens.New(tokens.TypePlus, "+"),
+		// 								Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+		// 								Right:    &ast.ExpressionLiteralInteger{Value: 1},
+		// 								Operator: "+",
+		// 							},
+		// 						},
+		// 						&ast.StatementExpression{
+		// 							Token: tokens.New(tokens.TypeIf, "if"),
+		// 							Expression: &ast.ExpressionIf{
+		// 								Branches: []ast.ConditionalBranch{
+		// 									{
+		// 										Token: tokens.Token{Type: tokens.TypeIf, Lexeme: "if"},
+		// 										Condition: &ast.ExpressionInfix{
+		// 											Token:    tokens.New(tokens.TypeEq, "=="),
+		// 											Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+		// 											Right:    &ast.ExpressionLiteralInteger{Value: 5},
+		// 											Operator: "==",
+		// 										},
+		// 										Consequence: &ast.StatementBlock{
+		// 											Statements: []ast.Statement{
+		// 												&ast.StatementExpression{
+		// 													Token: tokens.New(tokens.TypeBreak, "break"),
+		// 													Expression: &ast.ExpressionKeyword{
+		// 														Token:   tokens.New(tokens.TypeBreak, "break"),
+		// 														Keyword: "break",
+		// 													},
+		// 												},
+		// 											},
+		// 										},
+		// 									},
+		// 								},
+		// 								Alternative: nil,
+		// 							},
+		// 						},
+		// 					},
+		// 				},
+		// 			},
+		// 			&ast.StatementExpression{
+		// 				Token: tokens.New(tokens.TypeIdent, "i"),
+		// 				Expression: &ast.ExpressionIdentifier{
+		// 					Token: tokens.New(tokens.TypeIdent, "i"),
+		// 					Value: "i",
+		// 				},
+		// 			},
+		// 		},
+		// 	},
+		// 	expected: &objects.Integer{Value: 5},
+		// },
 		{
 			name: `double while loop
 				let i = 0;

@@ -553,18 +553,16 @@ func (p *Parser) parseStatementWhile() ast.Statement {
 		Token: p.currToken,
 	}
 
-	if !p.expectPeek(tokens.TypeLParen) {
-		p.logger.Debug("expected ( after while, got %s instead", p.peekToken.Type)
-		return nil
-	}
+	// conditions are optional in while loops
+	// so we only parse the condition if we see a left parenthesis after the while token
+	if p.peekToken.Type == tokens.TypeLParen {
+		p.nextToken()
+		stmt.Condition = p.parseExpression(precedenceLowest)
 
-	p.nextToken()
-
-	stmt.Condition = p.parseExpression(precedenceLowest)
-
-	if !p.expectPeek(tokens.TypeRParen) {
-		p.logger.Debug("expected ) after while condition, got %s instead", p.peekToken.Type)
-		return nil
+		if !p.expectPeek(tokens.TypeRParen) {
+			p.logger.Debug("expected ) after while condition, got %s instead", p.peekToken.Type)
+			return nil
+		}
 	}
 
 	if !p.expectPeek(tokens.TypeLBrace) {

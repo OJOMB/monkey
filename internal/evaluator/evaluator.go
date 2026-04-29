@@ -338,19 +338,22 @@ func (e *Evaluator) evalStatementBlock(block *ast.StatementBlock, env *objects.E
 
 func (e *Evaluator) evalStatementWhile(node *ast.StatementWhile, env *objects.Environment) objects.Object {
 	for {
-		condition := e.Eval(node.Condition, env)
-		if condition == nil {
-			e.logger.Error("while loop condition evaluated to nil")
-			return newError("while loop condition evaluated to nil")
-		}
+		// while loops with no condition are treated as infinite loops, so we only evaluate the condition if it is present
+		if node.Condition != nil {
+			condition := e.Eval(node.Condition, env)
+			if condition == nil {
+				e.logger.Error("while loop condition evaluated to nil")
+				return newError("while loop condition evaluated to nil")
+			}
 
-		if condition.Type() != objects.TypeBoolean {
-			e.logger.Warn("while loop condition did not evaluate to a boolean", "type", condition.Type())
-			return newError("while loop condition did not evaluate to a boolean: %s", condition.Type())
-		}
+			if condition.Type() != objects.TypeBoolean {
+				e.logger.Warn("while loop condition did not evaluate to a boolean", "type", condition.Type())
+				return newError("while loop condition did not evaluate to a boolean: %s", condition.Type())
+			}
 
-		if !condition.(*objects.Boolean).Value {
-			break
+			if !condition.(*objects.Boolean).Value {
+				break
+			}
 		}
 
 		result := e.evalStatementBlock(node.Body, env)

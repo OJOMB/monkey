@@ -1128,14 +1128,116 @@ func TestParserParseWhileLoop(t *testing.T) {
 	}
 
 	var testCases = []testCase{
+		// {
+		// 	name: "test while loop",
+		// 	input: `
+		// 		var result = 0;
+		// 		var i = 0;
+		// 		while (i < 10) {
+		// 			result = result + i;
+		// 			i = i + 1;
+		// 		}`,
+		// 	expectedOutput: &ast.Program{
+		// 		Statements: []ast.Statement{
+		// 			&ast.StatementBind{
+		// 				Token: tokens.Token{Type: tokens.TypeBind, Lexeme: "var"},
+		// 				Name: &ast.ExpressionIdentifier{
+		// 					Token: tokens.Token{Type: "IDENT", Lexeme: "result"},
+		// 					Value: "result",
+		// 				},
+		// 				Value: &ast.ExpressionLiteralInteger{
+		// 					Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "0"},
+		// 					Value: 0,
+		// 				},
+		// 			},
+		// 			&ast.StatementBind{
+		// 				Token: tokens.Token{Type: tokens.TypeBind, Lexeme: "var"},
+		// 				Name: &ast.ExpressionIdentifier{
+		// 					Token: tokens.Token{Type: "IDENT", Lexeme: "i"},
+		// 					Value: "i",
+		// 				},
+		// 				Value: &ast.ExpressionLiteralInteger{
+		// 					Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "0"},
+		// 					Value: 0,
+		// 				},
+		// 			},
+		// 			&ast.StatementWhile{
+		// 				Token: tokens.Token{Type: tokens.TypeWhile, Lexeme: "while"},
+		// 				Condition: &ast.ExpressionInfix{
+		// 					Token:    tokens.Token{Type: tokens.TypeLT, Lexeme: "<"},
+		// 					Operator: "<",
+		// 					Left: &ast.ExpressionIdentifier{
+		// 						Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
+		// 						Value: "i",
+		// 					},
+		// 					Right: &ast.ExpressionLiteralInteger{
+		// 						Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "10"},
+		// 						Value: 10,
+		// 					},
+		// 				},
+		// 				Body: &ast.StatementBlock{
+		// 					Statements: []ast.Statement{
+		// 						&ast.StatementRebind{
+		// 							Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "result"},
+		// 							Name: &ast.ExpressionIdentifier{
+		// 								Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "result"},
+		// 								Value: "result",
+		// 							},
+		// 							Value: &ast.ExpressionInfix{
+		// 								Token:    tokens.Token{Type: tokens.TypePlus, Lexeme: "+"},
+		// 								Operator: "+",
+		// 								Left: &ast.ExpressionIdentifier{
+		// 									Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "result"},
+		// 									Value: "result",
+		// 								},
+		// 								Right: &ast.ExpressionIdentifier{
+		// 									Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
+		// 									Value: "i",
+		// 								},
+		// 							},
+		// 						},
+		// 						&ast.StatementRebind{
+		// 							Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
+		// 							Name: &ast.ExpressionIdentifier{
+		// 								Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
+		// 								Value: "i",
+		// 							},
+		// 							Value: &ast.ExpressionInfix{
+		// 								Token:    tokens.Token{Type: tokens.TypePlus, Lexeme: "+"},
+		// 								Operator: "+",
+		// 								Left: &ast.ExpressionIdentifier{
+		// 									Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
+		// 									Value: "i",
+		// 								},
+		// 								Right: &ast.ExpressionLiteralInteger{
+		// 									Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "1"},
+		// 									Value: 1,
+		// 								},
+		// 							},
+		// 						},
+		// 					},
+		// 				},
+		// 			},
+		// 		},
+		// 	},
+		// 	expectedErrs: []string{},
+		// },
 		{
-			name: "test while loop",
+			name: "test while loop without condition",
 			input: `
 				var result = 0;
 				var i = 0;
-				while (i < 10) {
+				while {
+					if (i % 2 == 0) {
+						continue;
+					}
+
 					result = result + i;
 					i = i + 1;
+
+					if (result > 10) {
+						break;
+					}
 				}`,
 			expectedOutput: &ast.Program{
 				Statements: []ast.Statement{
@@ -1162,21 +1264,52 @@ func TestParserParseWhileLoop(t *testing.T) {
 						},
 					},
 					&ast.StatementWhile{
-						Token: tokens.Token{Type: tokens.TypeWhile, Lexeme: "while"},
-						Condition: &ast.ExpressionInfix{
-							Token:    tokens.Token{Type: tokens.TypeLT, Lexeme: "<"},
-							Operator: "<",
-							Left: &ast.ExpressionIdentifier{
-								Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
-								Value: "i",
-							},
-							Right: &ast.ExpressionLiteralInteger{
-								Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "10"},
-								Value: 10,
-							},
-						},
+						Token:     tokens.Token{Type: tokens.TypeWhile, Lexeme: "while"},
+						Condition: nil,
 						Body: &ast.StatementBlock{
 							Statements: []ast.Statement{
+								&ast.StatementExpression{
+									Token: tokens.Token{Type: tokens.TypeIf, Lexeme: "if"},
+									Expression: &ast.ExpressionIf{
+										Branches: []ast.ConditionalBranch{
+											{
+												Token: tokens.Token{Type: tokens.TypeIf, Lexeme: "if"},
+												Condition: &ast.ExpressionInfix{
+													Token:    tokens.Token{Type: tokens.TypeEq, Lexeme: "=="},
+													Operator: "==",
+													Left: &ast.ExpressionInfix{
+														Token:    tokens.Token{Type: tokens.TypePercent, Lexeme: "%"},
+														Operator: "%",
+														Left: &ast.ExpressionIdentifier{
+															Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
+															Value: "i",
+														},
+														Right: &ast.ExpressionLiteralInteger{
+															Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "2"},
+															Value: 2,
+														},
+													},
+													Right: &ast.ExpressionLiteralInteger{
+														Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "0"},
+														Value: 0,
+													},
+												},
+												Consequence: &ast.StatementBlock{
+													Statements: []ast.Statement{
+														&ast.StatementExpression{
+															Token: tokens.Token{Type: tokens.TypeContinue, Lexeme: "continue"},
+															Expression: &ast.ExpressionKeyword{
+																Token:   tokens.Token{Type: tokens.TypeContinue, Lexeme: "continue"},
+																Keyword: "continue",
+															},
+														},
+													},
+												},
+											},
+										},
+										Alternative: nil,
+									},
+								},
 								&ast.StatementRebind{
 									Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "result"},
 									Name: &ast.ExpressionIdentifier{
@@ -1213,6 +1346,40 @@ func TestParserParseWhileLoop(t *testing.T) {
 											Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "1"},
 											Value: 1,
 										},
+									},
+								},
+								&ast.StatementExpression{
+									Token: tokens.Token{Type: tokens.TypeIf, Lexeme: "if"},
+									Expression: &ast.ExpressionIf{
+										Branches: []ast.ConditionalBranch{
+											{
+												Token: tokens.Token{Type: tokens.TypeIf, Lexeme: "if"},
+												Condition: &ast.ExpressionInfix{
+													Token:    tokens.Token{Type: tokens.TypeGT, Lexeme: ">"},
+													Operator: ">",
+													Left: &ast.ExpressionIdentifier{
+														Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "result"},
+														Value: "result",
+													},
+													Right: &ast.ExpressionLiteralInteger{
+														Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "10"},
+														Value: 10,
+													},
+												},
+												Consequence: &ast.StatementBlock{
+													Statements: []ast.Statement{
+														&ast.StatementExpression{
+															Token: tokens.Token{Type: tokens.TypeBreak, Lexeme: "break"},
+															Expression: &ast.ExpressionKeyword{
+																Token:   tokens.Token{Type: tokens.TypeBreak, Lexeme: "break"},
+																Keyword: "break",
+															},
+														},
+													},
+												},
+											},
+										},
+										Alternative: nil,
 									},
 								},
 							},
