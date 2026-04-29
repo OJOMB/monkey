@@ -69,3 +69,16 @@ fn factorial(n) {
 
 factorial(5); // returns 120
 ```
+
+loops:
+```donkey
+var i = 0;
+while (i < 10) {
+    print(i);
+    i = i + 1;
+}
+
+for (var j = 0; j < 10; j = j + 1) {
+    print(j);
+}
+```
