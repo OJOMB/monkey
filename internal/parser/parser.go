@@ -557,6 +557,7 @@ func (p *Parser) parseStatementWhile() ast.Statement {
 	// so we only parse the condition if we see a left parenthesis after the while token
 	if p.peekToken.Type == tokens.TypeLParen {
 		p.nextToken()
+		p.nextToken()
 		stmt.Condition = p.parseExpression(precedenceLowest)
 
 		if !p.expectPeek(tokens.TypeRParen) {

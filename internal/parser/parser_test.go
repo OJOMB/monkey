@@ -1128,100 +1128,100 @@ func TestParserParseWhileLoop(t *testing.T) {
 	}
 
 	var testCases = []testCase{
-		// {
-		// 	name: "test while loop",
-		// 	input: `
-		// 		var result = 0;
-		// 		var i = 0;
-		// 		while (i < 10) {
-		// 			result = result + i;
-		// 			i = i + 1;
-		// 		}`,
-		// 	expectedOutput: &ast.Program{
-		// 		Statements: []ast.Statement{
-		// 			&ast.StatementBind{
-		// 				Token: tokens.Token{Type: tokens.TypeBind, Lexeme: "var"},
-		// 				Name: &ast.ExpressionIdentifier{
-		// 					Token: tokens.Token{Type: "IDENT", Lexeme: "result"},
-		// 					Value: "result",
-		// 				},
-		// 				Value: &ast.ExpressionLiteralInteger{
-		// 					Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "0"},
-		// 					Value: 0,
-		// 				},
-		// 			},
-		// 			&ast.StatementBind{
-		// 				Token: tokens.Token{Type: tokens.TypeBind, Lexeme: "var"},
-		// 				Name: &ast.ExpressionIdentifier{
-		// 					Token: tokens.Token{Type: "IDENT", Lexeme: "i"},
-		// 					Value: "i",
-		// 				},
-		// 				Value: &ast.ExpressionLiteralInteger{
-		// 					Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "0"},
-		// 					Value: 0,
-		// 				},
-		// 			},
-		// 			&ast.StatementWhile{
-		// 				Token: tokens.Token{Type: tokens.TypeWhile, Lexeme: "while"},
-		// 				Condition: &ast.ExpressionInfix{
-		// 					Token:    tokens.Token{Type: tokens.TypeLT, Lexeme: "<"},
-		// 					Operator: "<",
-		// 					Left: &ast.ExpressionIdentifier{
-		// 						Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
-		// 						Value: "i",
-		// 					},
-		// 					Right: &ast.ExpressionLiteralInteger{
-		// 						Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "10"},
-		// 						Value: 10,
-		// 					},
-		// 				},
-		// 				Body: &ast.StatementBlock{
-		// 					Statements: []ast.Statement{
-		// 						&ast.StatementRebind{
-		// 							Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "result"},
-		// 							Name: &ast.ExpressionIdentifier{
-		// 								Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "result"},
-		// 								Value: "result",
-		// 							},
-		// 							Value: &ast.ExpressionInfix{
-		// 								Token:    tokens.Token{Type: tokens.TypePlus, Lexeme: "+"},
-		// 								Operator: "+",
-		// 								Left: &ast.ExpressionIdentifier{
-		// 									Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "result"},
-		// 									Value: "result",
-		// 								},
-		// 								Right: &ast.ExpressionIdentifier{
-		// 									Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
-		// 									Value: "i",
-		// 								},
-		// 							},
-		// 						},
-		// 						&ast.StatementRebind{
-		// 							Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
-		// 							Name: &ast.ExpressionIdentifier{
-		// 								Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
-		// 								Value: "i",
-		// 							},
-		// 							Value: &ast.ExpressionInfix{
-		// 								Token:    tokens.Token{Type: tokens.TypePlus, Lexeme: "+"},
-		// 								Operator: "+",
-		// 								Left: &ast.ExpressionIdentifier{
-		// 									Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
-		// 									Value: "i",
-		// 								},
-		// 								Right: &ast.ExpressionLiteralInteger{
-		// 									Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "1"},
-		// 									Value: 1,
-		// 								},
-		// 							},
-		// 						},
-		// 					},
-		// 				},
-		// 			},
-		// 		},
-		// 	},
-		// 	expectedErrs: []string{},
-		// },
+		{
+			name: "test while loop",
+			input: `
+				var result = 0;
+				var i = 0;
+				while (i < 10) {
+					result = result + i;
+					i = i + 1;
+				}`,
+			expectedOutput: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementBind{
+						Token: tokens.Token{Type: tokens.TypeBind, Lexeme: "var"},
+						Name: &ast.ExpressionIdentifier{
+							Token: tokens.Token{Type: "IDENT", Lexeme: "result"},
+							Value: "result",
+						},
+						Value: &ast.ExpressionLiteralInteger{
+							Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "0"},
+							Value: 0,
+						},
+					},
+					&ast.StatementBind{
+						Token: tokens.Token{Type: tokens.TypeBind, Lexeme: "var"},
+						Name: &ast.ExpressionIdentifier{
+							Token: tokens.Token{Type: "IDENT", Lexeme: "i"},
+							Value: "i",
+						},
+						Value: &ast.ExpressionLiteralInteger{
+							Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "0"},
+							Value: 0,
+						},
+					},
+					&ast.StatementWhile{
+						Token: tokens.Token{Type: tokens.TypeWhile, Lexeme: "while"},
+						Condition: &ast.ExpressionInfix{
+							Token:    tokens.Token{Type: tokens.TypeLT, Lexeme: "<"},
+							Operator: "<",
+							Left: &ast.ExpressionIdentifier{
+								Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
+								Value: "i",
+							},
+							Right: &ast.ExpressionLiteralInteger{
+								Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "10"},
+								Value: 10,
+							},
+						},
+						Body: &ast.StatementBlock{
+							Statements: []ast.Statement{
+								&ast.StatementRebind{
+									Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "result"},
+									Name: &ast.ExpressionIdentifier{
+										Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "result"},
+										Value: "result",
+									},
+									Value: &ast.ExpressionInfix{
+										Token:    tokens.Token{Type: tokens.TypePlus, Lexeme: "+"},
+										Operator: "+",
+										Left: &ast.ExpressionIdentifier{
+											Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "result"},
+											Value: "result",
+										},
+										Right: &ast.ExpressionIdentifier{
+											Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
+											Value: "i",
+										},
+									},
+								},
+								&ast.StatementRebind{
+									Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
+									Name: &ast.ExpressionIdentifier{
+										Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
+										Value: "i",
+									},
+									Value: &ast.ExpressionInfix{
+										Token:    tokens.Token{Type: tokens.TypePlus, Lexeme: "+"},
+										Operator: "+",
+										Left: &ast.ExpressionIdentifier{
+											Token: tokens.Token{Type: tokens.TypeIdent, Lexeme: "i"},
+											Value: "i",
+										},
+										Right: &ast.ExpressionLiteralInteger{
+											Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "1"},
+											Value: 1,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedErrs: []string{},
+		},
 		{
 			name: "test while loop without condition",
 			input: `
