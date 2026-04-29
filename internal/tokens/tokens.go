@@ -94,6 +94,8 @@ const (
 	TypeContinue Type = "CONTINUE"
 	// TypeWhile represents the control flow keyword while.
 	TypeWhile Type = "WHILE"
+	// TypeFor represents the control flow keyword for.
+	TypeFor Type = "FOR"
 )
 
 var keywords = map[string]Type{
@@ -106,6 +108,7 @@ var keywords = map[string]Type{
 	"true":     TypeTrue,
 	"false":    TypeFalse,
 	"while":    TypeWhile,
+	"for":      TypeFor,
 	"break":    TypeBreak,
 	"continue": TypeContinue,
 }

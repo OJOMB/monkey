@@ -125,6 +125,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseBlockStatement()
 	case tokens.TypeWhile:
 		return p.parseStatementWhile()
+	case tokens.TypeFor:
+		return p.parseStatementFor()
 	default:
 		if p.peekToken.Type == tokens.TypeAssign {
 			// here we have an identifier followed by an assign token
@@ -568,6 +570,60 @@ func (p *Parser) parseStatementWhile() ast.Statement {
 
 	if !p.expectPeek(tokens.TypeLBrace) {
 		p.logger.Debug("expected { after while condition, got %s instead", p.peekToken.Type)
+		return nil
+	}
+
+	stmt.Body = p.parseBlockStatement()
+
+	return stmt
+}
+
+func (p *Parser) parseStatementFor() ast.Statement {
+	stmt := &ast.StatementFor{
+		Token: p.currToken,
+	}
+
+	// for loops have the syntax for (initializer; condition; step) { body }
+	// so we need to parse the initializer, condition, and step expressions before parsing the body
+
+	if !p.expectPeek(tokens.TypeLParen) {
+		p.logger.Debug("expected ( after for, got %s instead", p.peekToken.Type)
+		return nil
+	}
+
+	// the initializer must be a var statement
+	if !p.expectPeek(tokens.TypeBind) {
+		p.logger.Debug("expected var statement as initializer in for loop, got %s instead", p.peekToken.Type)
+		return nil
+	}
+
+	stmt.Initializer = p.parseStatementLet()
+
+	// next we need to parse the condition expression, which is not optional in for loops
+	if !p.expectPeek(tokens.TypeSemicolon) {
+		p.logger.Debug("expected ; after initializer in for loop, got %s instead", p.peekToken.Type)
+		return nil
+	}
+
+	p.nextToken()
+	stmt.Condition = p.parseExpression(precedenceLowest)
+
+	if !p.expectPeek(tokens.TypeSemicolon) {
+		p.logger.Debug("expected ; after condition in for loop, got %s instead", p.peekToken.Type)
+		return nil
+	}
+
+	// next we need to parse the step expression, which is not optional in for loops
+	p.nextToken()
+	stmt.Step = p.parseStatement()
+
+	if !p.expectPeek(tokens.TypeRParen) {
+		p.logger.Debug("expected step expression in for loop, got ) instead")
+		return nil
+	}
+
+	if !p.expectPeek(tokens.TypeLBrace) {
+		p.logger.Debug("expected { after for loop step expression, got %s instead", p.peekToken.Type)
 		return nil
 	}
 
