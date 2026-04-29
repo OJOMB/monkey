@@ -1417,11 +1417,11 @@ func TestEvaluatorEvalBindStatements(t *testing.T) {
 
 	tests := []testCase{
 		{
-			name: "let a = 5; a;",
+			name: "var a = 5; a;",
 			input: &ast.Program{
 				Statements: []ast.Statement{
 					&ast.StatementBind{
-						Token: tokens.New(tokens.TypeBind, "let"),
+						Token: tokens.New(tokens.TypeBind, "var"),
 						Name: &ast.ExpressionIdentifier{
 							Token: tokens.New(tokens.TypeIdent, "a"),
 							Value: "a",
@@ -1440,11 +1440,11 @@ func TestEvaluatorEvalBindStatements(t *testing.T) {
 			expected: &objects.Integer{Value: 5},
 		},
 		{
-			name: "let a = 5; let b = a; b;",
+			name: "var a = 5; var b = a; b;",
 			input: &ast.Program{
 				Statements: []ast.Statement{
 					&ast.StatementBind{
-						Token: tokens.New(tokens.TypeBind, "let"),
+						Token: tokens.New(tokens.TypeBind, "var"),
 						Name: &ast.ExpressionIdentifier{
 							Token: tokens.New(tokens.TypeIdent, "a"),
 							Value: "a",
@@ -1452,7 +1452,7 @@ func TestEvaluatorEvalBindStatements(t *testing.T) {
 						Value: &ast.ExpressionLiteralInteger{Value: 5},
 					},
 					&ast.StatementBind{
-						Token: tokens.New(tokens.TypeBind, "let"),
+						Token: tokens.New(tokens.TypeBind, "var"),
 						Name: &ast.ExpressionIdentifier{
 							Token: tokens.New(tokens.TypeIdent, "b"),
 							Value: "b",
@@ -1496,13 +1496,13 @@ func TestEvaluatorEvalRebindStatements(t *testing.T) {
 	tests := []testCase{
 		{
 			name: `
-				let a = 5;
+				var a = 5;
 				a = 13;
 				a;`,
 			input: &ast.Program{
 				Statements: []ast.Statement{
 					&ast.StatementBind{
-						Token: tokens.New(tokens.TypeBind, "let"),
+						Token: tokens.New(tokens.TypeBind, "var"),
 						Name: &ast.ExpressionIdentifier{
 							Token: tokens.New(tokens.TypeIdent, "a"),
 							Value: "a",
@@ -1530,14 +1530,14 @@ func TestEvaluatorEvalRebindStatements(t *testing.T) {
 		},
 		{
 			name: `
-			let a = 5;
-			let b = a;
+			var a = 5;
+			var b = a;
 			b = 109;
 			b;`,
 			input: &ast.Program{
 				Statements: []ast.Statement{
 					&ast.StatementBind{
-						Token: tokens.New(tokens.TypeBind, "let"),
+						Token: tokens.New(tokens.TypeBind, "var"),
 						Name: &ast.ExpressionIdentifier{
 							Token: tokens.New(tokens.TypeIdent, "a"),
 							Value: "a",
@@ -1545,7 +1545,7 @@ func TestEvaluatorEvalRebindStatements(t *testing.T) {
 						Value: &ast.ExpressionLiteralInteger{Value: 5},
 					},
 					&ast.StatementBind{
-						Token: tokens.New(tokens.TypeBind, "let"),
+						Token: tokens.New(tokens.TypeBind, "var"),
 						Name: &ast.ExpressionIdentifier{
 							Token: tokens.New(tokens.TypeIdent, "b"),
 							Value: "b",
@@ -1597,7 +1597,7 @@ func TestEvaluatorEvalWhileLoops(t *testing.T) {
 	tests := []testCase{
 		{
 			name: `
-				let i = 0;
+				var i = 0;
 				while (i < 5) {
 					i = i + 1;
 				}
@@ -1606,7 +1606,7 @@ func TestEvaluatorEvalWhileLoops(t *testing.T) {
 			input: &ast.Program{
 				Statements: []ast.Statement{
 					&ast.StatementBind{
-						Token: tokens.New(tokens.TypeBind, "let"),
+						Token: tokens.New(tokens.TypeBind, "var"),
 						Name: &ast.ExpressionIdentifier{
 							Token: tokens.New(tokens.TypeIdent, "i"),
 							Value: "i",
@@ -1653,7 +1653,7 @@ func TestEvaluatorEvalWhileLoops(t *testing.T) {
 		// TODO: re-enable when we have break statements implemented
 		// {
 		// 	name: `while loop with no conditional
-		// 		let i = 0;
+		// 		var i = 0;
 		// 		while {
 		// 			i = i + 1;
 		// 			if (i == 5) {
@@ -1666,7 +1666,7 @@ func TestEvaluatorEvalWhileLoops(t *testing.T) {
 		// 	input: &ast.Program{
 		// 		Statements: []ast.Statement{
 		// 			&ast.StatementBind{
-		// 				Token: tokens.New(tokens.TypeBind, "let"),
+		// 				Token: tokens.New(tokens.TypeBind, "var"),
 		// 				Name: &ast.ExpressionIdentifier{
 		// 					Token: tokens.New(tokens.TypeIdent, "i"),
 		// 					Value: "i",
@@ -1735,7 +1735,7 @@ func TestEvaluatorEvalWhileLoops(t *testing.T) {
 		// },
 		{
 			name: `double while loop
-				let i = 0;
+				var i = 0;
 				while (i < 5) {
 					while (i < 5) {
 						i = i + 1;
@@ -1747,7 +1747,7 @@ func TestEvaluatorEvalWhileLoops(t *testing.T) {
 			input: &ast.Program{
 				Statements: []ast.Statement{
 					&ast.StatementBind{
-						Token: tokens.New(tokens.TypeBind, "let"),
+						Token: tokens.New(tokens.TypeBind, "var"),
 						Name: &ast.ExpressionIdentifier{
 							Token: tokens.New(tokens.TypeIdent, "i"),
 							Value: "i",
@@ -1803,6 +1803,324 @@ func TestEvaluatorEvalWhileLoops(t *testing.T) {
 				},
 			},
 			expected: &objects.Integer{Value: 5},
+		},
+	}
+
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
+			evaluator := New(nil)
+			result := evaluator.Eval(tc.input, objects.NewEnvironment())
+
+			assert.Equal(t, tc.expected.Type(), result.Type())
+			assert.Equal(t, tc.expected.Inspect(), result.Inspect())
+		})
+	}
+}
+
+func TestEvaluastorEvalForLoops(t *testing.T) {
+	type testCase struct {
+		name     string
+		input    *ast.Program
+		expected objects.Object
+	}
+
+	tests := []testCase{
+		{
+			name: `
+				var result = 0;
+				for (var i = 0; i < 5; i = i + 1) {
+					result = result + i;
+				}
+
+				result;`,
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementBind{
+						Token: tokens.New(tokens.TypeBind, "var"),
+						Name: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "result"),
+							Value: "result",
+						},
+						Value: &ast.ExpressionLiteralInteger{Value: 0},
+					},
+					&ast.StatementFor{
+						Token: tokens.New(tokens.TypeFor, "for"),
+						Initializer: &ast.StatementBind{
+							Token: tokens.New(tokens.TypeBind, "var"),
+							Name: &ast.ExpressionIdentifier{
+								Token: tokens.New(tokens.TypeIdent, "i"),
+								Value: "i",
+							},
+							Value: &ast.ExpressionLiteralInteger{Value: 0},
+						},
+						Condition: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeLT, "<"),
+							Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+							Right:    &ast.ExpressionLiteralInteger{Value: 5},
+							Operator: "<",
+						},
+						Step: &ast.StatementRebind{
+							Token: tokens.New(tokens.TypeIdent, "i"),
+							Name: &ast.ExpressionIdentifier{
+								Token: tokens.New(tokens.TypeIdent, "i"),
+								Value: "i",
+							},
+							Value: &ast.ExpressionInfix{
+								Token:    tokens.New(tokens.TypePlus, "+"),
+								Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+								Right:    &ast.ExpressionLiteralInteger{Value: 1},
+								Operator: "+",
+							},
+						},
+						Body: &ast.StatementBlock{
+							Statements: []ast.Statement{
+								&ast.StatementRebind{
+									Token: tokens.New(tokens.TypeIdent, "result"),
+									Name: &ast.ExpressionIdentifier{
+										Token: tokens.New(tokens.TypeIdent, "result"),
+										Value: "result",
+									},
+									Value: &ast.ExpressionInfix{
+										Token:    tokens.New(tokens.TypePlus, "+"),
+										Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "result"), Value: "result"},
+										Right:    &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+										Operator: "+",
+									},
+								},
+							},
+						},
+					},
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeIdent, "result"),
+						Expression: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "result"),
+							Value: "result",
+						},
+					},
+				},
+			},
+			expected: &objects.Integer{Value: 10},
+		},
+		{
+			name: `
+				var result = 0;
+				for (var i = 0; i < 6; i = i + 1) {
+					if (i % 2 == 0) {
+						continue;
+					}
+
+					result = result + i;
+				}
+
+				result;`,
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementBind{
+						Token: tokens.New(tokens.TypeBind, "var"),
+						Name: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "result"),
+							Value: "result",
+						},
+						Value: &ast.ExpressionLiteralInteger{Value: 0},
+					},
+					&ast.StatementFor{
+						Token: tokens.New(tokens.TypeFor, "for"),
+						Initializer: &ast.StatementBind{
+							Token: tokens.New(tokens.TypeBind, "var"),
+							Name: &ast.ExpressionIdentifier{
+								Token: tokens.New(tokens.TypeIdent, "i"),
+								Value: "i",
+							},
+							Value: &ast.ExpressionLiteralInteger{Value: 0},
+						},
+						Condition: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeLT, "<"),
+							Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+							Right:    &ast.ExpressionLiteralInteger{Value: 5},
+							Operator: "<",
+						},
+						Step: &ast.StatementRebind{
+							Token: tokens.New(tokens.TypeIdent, "i"),
+							Name: &ast.ExpressionIdentifier{
+								Token: tokens.New(tokens.TypeIdent, "i"),
+								Value: "i",
+							},
+							Value: &ast.ExpressionInfix{
+								Token:    tokens.New(tokens.TypePlus, "+"),
+								Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+								Right:    &ast.ExpressionLiteralInteger{Value: 1},
+								Operator: "+",
+							},
+						},
+						Body: &ast.StatementBlock{
+							Statements: []ast.Statement{
+								&ast.StatementExpression{
+									Token: tokens.New(tokens.TypeIf, "if"),
+									Expression: &ast.ExpressionIf{
+										Branches: []ast.ConditionalBranch{
+											{
+												Token: tokens.Token{Type: tokens.TypeIf, Lexeme: "if"},
+												Condition: &ast.ExpressionInfix{
+													Token: tokens.New(tokens.TypeEq, "=="),
+													Left: &ast.ExpressionInfix{
+														Token:    tokens.New(tokens.TypePercent, "%"),
+														Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+														Right:    &ast.ExpressionLiteralInteger{Value: 2},
+														Operator: "%",
+													},
+													Right:    &ast.ExpressionLiteralInteger{Value: 0},
+													Operator: "==",
+												},
+												Consequence: &ast.StatementBlock{
+													Statements: []ast.Statement{
+														&ast.StatementExpression{
+															Token: tokens.New(tokens.TypeContinue, "continue"),
+															Expression: &ast.ExpressionKeyword{
+																Token:   tokens.New(tokens.TypeContinue, "continue"),
+																Keyword: "continue",
+															},
+														},
+													},
+												},
+											},
+										},
+										Alternative: nil,
+									},
+								},
+								&ast.StatementRebind{
+									Token: tokens.New(tokens.TypeIdent, "result"),
+									Name: &ast.ExpressionIdentifier{
+										Token: tokens.New(tokens.TypeIdent, "result"),
+										Value: "result",
+									},
+									Value: &ast.ExpressionInfix{
+										Token:    tokens.New(tokens.TypePlus, "+"),
+										Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "result"), Value: "result"},
+										Right:    &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+										Operator: "+",
+									},
+								},
+							},
+						},
+					},
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeIdent, "result"),
+						Expression: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "result"),
+							Value: "result",
+						},
+					},
+				},
+			},
+			expected: &objects.Integer{Value: 4},
+		},
+		{
+			name: `
+				var result = 0;
+				for (var i = 0; i < 6; i = i + 1) {
+					if (result >= 3) {
+						break;
+					}
+
+					result = result + 1;
+				}
+
+				result;`,
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementBind{
+						Token: tokens.New(tokens.TypeBind, "var"),
+						Name: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "result"),
+							Value: "result",
+						},
+						Value: &ast.ExpressionLiteralInteger{Value: 0},
+					},
+					&ast.StatementFor{
+						Token: tokens.New(tokens.TypeFor, "for"),
+						Initializer: &ast.StatementBind{
+							Token: tokens.New(tokens.TypeBind, "var"),
+							Name: &ast.ExpressionIdentifier{
+								Token: tokens.New(tokens.TypeIdent, "i"),
+								Value: "i",
+							},
+							Value: &ast.ExpressionLiteralInteger{Value: 0},
+						},
+						Condition: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeLT, "<"),
+							Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+							Right:    &ast.ExpressionLiteralInteger{Value: 5},
+							Operator: "<",
+						},
+						Step: &ast.StatementRebind{
+							Token: tokens.New(tokens.TypeIdent, "i"),
+							Name: &ast.ExpressionIdentifier{
+								Token: tokens.New(tokens.TypeIdent, "i"),
+								Value: "i",
+							},
+							Value: &ast.ExpressionInfix{
+								Token:    tokens.New(tokens.TypePlus, "+"),
+								Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+								Right:    &ast.ExpressionLiteralInteger{Value: 1},
+								Operator: "+",
+							},
+						},
+						Body: &ast.StatementBlock{
+							Statements: []ast.Statement{
+								&ast.StatementExpression{
+									Token: tokens.New(tokens.TypeIf, "if"),
+									Expression: &ast.ExpressionIf{
+										Branches: []ast.ConditionalBranch{
+											{
+												Token: tokens.Token{Type: tokens.TypeIf, Lexeme: "if"},
+												Condition: &ast.ExpressionInfix{
+													Token:    tokens.New(tokens.TypeGTEQ, ">="),
+													Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "result"), Value: "result"},
+													Right:    &ast.ExpressionLiteralInteger{Value: 3},
+													Operator: ">=",
+												},
+												Consequence: &ast.StatementBlock{
+													Statements: []ast.Statement{
+														&ast.StatementExpression{
+															Token: tokens.New(tokens.TypeBreak, "break"),
+															Expression: &ast.ExpressionKeyword{
+																Token:   tokens.New(tokens.TypeBreak, "break"),
+																Keyword: "break",
+															},
+														},
+													},
+												},
+											},
+										},
+										Alternative: nil,
+									},
+								},
+								&ast.StatementRebind{
+									Token: tokens.New(tokens.TypeIdent, "result"),
+									Name: &ast.ExpressionIdentifier{
+										Token: tokens.New(tokens.TypeIdent, "result"),
+										Value: "result",
+									},
+									Value: &ast.ExpressionInfix{
+										Token:    tokens.New(tokens.TypePlus, "+"),
+										Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "result"), Value: "result"},
+										Right:    &ast.ExpressionLiteralInteger{Value: 1},
+										Operator: "+",
+									},
+								},
+							},
+						},
+					},
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeIdent, "result"),
+						Expression: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "result"),
+							Value: "result",
+						},
+					},
+				},
+			},
+			expected: &objects.Integer{Value: 3},
 		},
 	}
 

@@ -20,6 +20,10 @@ const (
 	TypeReturnValue Type = "RETURN_VALUE"
 	// TypeErrorValue represents the type of an error value object
 	TypeErrorValue Type = "ERROR_VALUE"
+	// TypeContinue represents the type of a continue object
+	TypeContinue Type = "CONTINUE"
+	// TypeBreak represents the type of a break object
+	TypeBreak Type = "BREAK"
 )
 
 // Object is the interface that all objects in the Donkey programming language must implement.

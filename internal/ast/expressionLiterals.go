@@ -7,7 +7,7 @@ import (
 )
 
 // ExpressionLiteralInteger represents an integer literal expression in the Donkey programming language, such as 5 or 10.
-// For example, in the expression "let x = 5;", the "5" is an integer literal expression that represents the value being assigned to the variable "x" in the let statement.
+// For example, in the expression "var x = 5;", the "5" is an integer literal expression that represents the value being assigned to the variable "x" in the var statement.
 type ExpressionLiteralInteger struct {
 	Token tokens.Token
 	Value int
@@ -21,7 +21,7 @@ func (li *ExpressionLiteralInteger) String() string {
 }
 
 // ExpressionLiteralString represents a string literal expression in the Donkey programming language, such as "hello" or "world".
-// For example, in the expression "let greeting = "hello";", the ""hello"" is a string literal expression that represents the value being assigned to the variable "greeting" in the let statement.
+// For example, in the expression "var greeting = "hello";", the ""hello"" is a string literal expression that represents the value being assigned to the variable "greeting" in the var statement.
 type ExpressionLiteralString struct {
 	Token tokens.Token
 	Value string
@@ -35,7 +35,7 @@ func (ls *ExpressionLiteralString) String() string {
 }
 
 // ExpressionLiteralBoolean represents a boolean literal expression in the Donkey programming language, such as true or false.
-// For example, in the expression "let isValid = true;", the "true" is a boolean literal expression that represents the value being assigned to the variable "isValid" in the let statement.
+// For example, in the expression "var isValid = true;", the "true" is a boolean literal expression that represents the value being assigned to the variable "isValid" in the var statement.
 type ExpressionLiteralBoolean struct {
 	Token tokens.Token
 	// Value is the boolean value of the expression, which can be either true or false.
@@ -50,8 +50,8 @@ func (lb *ExpressionLiteralBoolean) String() string {
 }
 
 // ExpressionLiteralFunction represents a function literal expression in the Donkey programming language, such as "fn(x) { x + 1 }".
-// For example, in the expression "let add = fn(x) { x + 1 };"
-// the "fn(x) { x + 1 }" is a function literal expression that represents the value being assigned to the variable "add" in the let statement.
+// For example, in the expression "var add = fn(x) { x + 1 };"
+// the "fn(x) { x + 1 }" is a function literal expression that represents the value being assigned to the variable "add" in the var statement.
 // not to be confused with ExpressionCall, which represents a function call expression like "add(5)" where "add" is the function being called and "5" is the argument passed to the function.
 // fn(<parameters>) { <body> }
 type ExpressionLiteralFunction struct {

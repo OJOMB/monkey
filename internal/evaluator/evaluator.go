@@ -82,6 +82,8 @@ func (e *Evaluator) Eval(node ast.Node, env *objects.Environment) objects.Object
 		return e.evalExpressionInfix(nt.Operator, l, r)
 	case *ast.ExpressionIf:
 		return e.evalExpressionIf(nt, env)
+	case *ast.ExpressionKeyword:
+		return e.evalExpressionKeyword(nt, env)
 	case *ast.StatementBlock:
 		return e.evalStatementBlock(nt, env)
 	case *ast.StatementBind:
@@ -115,6 +117,8 @@ func (e *Evaluator) Eval(node ast.Node, env *objects.Environment) objects.Object
 		return &objects.ReturnValue{Value: value}
 	case *ast.StatementWhile:
 		return e.evalStatementWhile(nt, env)
+	case *ast.StatementFor:
+		return e.evalStatementFor(nt, env)
 	default:
 		e.logger.Error("unsupported AST node type", "type", fmt.Sprintf("%T", nt))
 		return newError("unsupported AST node type: %T", nt)
@@ -331,6 +335,14 @@ func (e *Evaluator) evalStatementBlock(block *ast.StatementBlock, env *objects.E
 		if returnValue, ok := result.(*objects.ReturnValue); ok {
 			return returnValue
 		}
+
+		if _, ok := result.(*objects.Continue); ok {
+			return result
+		}
+
+		if _, ok := result.(*objects.Break); ok {
+			return result
+		}
 	}
 
 	return result
@@ -365,4 +377,64 @@ func (e *Evaluator) evalStatementWhile(node *ast.StatementWhile, env *objects.En
 
 	// while loops do not produce a value, so we return Nowt to indicate the absence of a value
 	return Nowt
+}
+
+func (e *Evaluator) evalStatementFor(node *ast.StatementFor, env *objects.Environment) objects.Object {
+	// create a new environment for the loop body that is enclosed by the current environment
+	// so that variables declared in the loop body do not leak out into the surrounding code
+	loopEnv := objects.NewEnclosedEnvironment(env)
+
+	// evaluate the initializer statement
+	if err := node.EvalInitializer(loopEnv, e); err != nil {
+		e.logger.Warn("failed to evaluate for loop initializer", "error", err)
+		return newError("failed to evaluate for loop initializer: %s", err)
+	}
+
+	for {
+		// evaluate the condition expression if it is present, otherwise treat the loop as infinite
+		if truthy, _ := node.EvalCondition(loopEnv, e); !truthy {
+			break
+		}
+
+		// evaluate the loop body
+		result := e.evalStatementBlock(node.Body, loopEnv)
+		if _, ok := result.(*objects.ReturnValue); ok {
+			// bubble up return values from inside the loop body so that they can be handled by the caller
+			return result
+		}
+
+		// if _, ok := result.(*objects.Continue); ok {
+		// 	// continue statements skip the rest of the loop body and proceed to the next iteration
+		// 	continue
+		// }
+
+		if _, ok := result.(*objects.Break); ok {
+			// break statements exit the loop immediately
+			break
+		}
+
+		// evaluate the step statement if it is present
+		if node.Step != nil {
+			if result := e.Eval(node.Step, loopEnv); result != nil {
+				if _, ok := result.(*objects.ErrorValue); ok {
+					return result
+				}
+			}
+		}
+	}
+
+	// for loops do not produce a value, so we return Nowt to indicate the absence of a value
+	return Nowt
+}
+
+func (e *Evaluator) evalExpressionKeyword(node *ast.ExpressionKeyword, env *objects.Environment) objects.Object {
+	switch node.Keyword {
+	case "continue":
+		return &objects.Continue{}
+	case "break":
+		return &objects.Break{}
+	default:
+		e.logger.Warn("unsupported keyword", "keyword", node.Keyword)
+		return newError("unsupported keyword: %s", node.Keyword)
+	}
 }
