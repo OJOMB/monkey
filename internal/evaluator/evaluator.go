@@ -31,7 +31,6 @@ func New(l logs.Logger) *Evaluator {
 	}
 
 	return &Evaluator{logger: l.With("component", "evaluator")}
-
 }
 
 // Eval evaluates the given AST node and returns the resulting object.
@@ -114,6 +113,8 @@ func (e *Evaluator) Eval(node ast.Node, env *objects.Environment) objects.Object
 		}
 
 		return &objects.ReturnValue{Value: value}
+	case *ast.StatementWhile:
+		return e.evalStatementWhile(nt, env)
 	default:
 		e.logger.Error("unsupported AST node type", "type", fmt.Sprintf("%T", nt))
 		return newError("unsupported AST node type: %T", nt)
@@ -333,4 +334,32 @@ func (e *Evaluator) evalStatementBlock(block *ast.StatementBlock, env *objects.E
 	}
 
 	return result
+}
+
+func (e *Evaluator) evalStatementWhile(node *ast.StatementWhile, env *objects.Environment) objects.Object {
+	for {
+		condition := e.Eval(node.Condition, env)
+		if condition == nil {
+			e.logger.Error("while loop condition evaluated to nil")
+			return newError("while loop condition evaluated to nil")
+		}
+
+		if condition.Type() != objects.TypeBoolean {
+			e.logger.Warn("while loop condition did not evaluate to a boolean", "type", condition.Type())
+			return newError("while loop condition did not evaluate to a boolean: %s", condition.Type())
+		}
+
+		if !condition.(*objects.Boolean).Value {
+			break
+		}
+
+		result := e.evalStatementBlock(node.Body, env)
+		if _, ok := result.(*objects.ReturnValue); ok {
+			// bubble up return values from inside the loop body so that they can be handled by the caller
+			return result
+		}
+	}
+
+	// while loops do not produce a value, so we return Nowt to indicate the absence of a value
+	return Nowt
 }

@@ -60,7 +60,6 @@ func New(l *lexer.Lexer, logger logs.Logger) (*Parser, error) {
 	p.RegisterPrefix(tokens.TypeMinus, p.parseExpressionPrefix)
 	p.RegisterPrefix(tokens.TypeLParen, p.parseExpressionGrouped)
 	p.RegisterPrefix(tokens.TypeIf, p.parseExpressionIf)
-	p.RegisterPrefix(tokens.TypeWhile, p.parseExpressionWhile)
 	p.RegisterPrefix(tokens.TypeFunction, p.parseExpressionLiteralFunction)
 	p.RegisterPrefix(tokens.TypeContinue, p.parseExpressionKeyword)
 	p.RegisterPrefix(tokens.TypeBreak, p.parseExpressionKeyword)
@@ -124,6 +123,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseStatementReturn()
 	case tokens.TypeLBrace:
 		return p.parseBlockStatement()
+	case tokens.TypeWhile:
+		return p.parseStatementWhile()
 	default:
 		if p.peekToken.Type == tokens.TypeAssign {
 			// here we have an identifier followed by an assign token
@@ -547,8 +548,8 @@ func (p *Parser) parseStatementReBind() *ast.StatementRebind {
 	return reBind
 }
 
-func (p *Parser) parseExpressionWhile() ast.Expression {
-	expr := &ast.ExpressionWhile{
+func (p *Parser) parseStatementWhile() ast.Statement {
+	stmt := &ast.StatementWhile{
 		Token: p.currToken,
 	}
 
@@ -559,7 +560,7 @@ func (p *Parser) parseExpressionWhile() ast.Expression {
 
 	p.nextToken()
 
-	expr.Condition = p.parseExpression(precedenceLowest)
+	stmt.Condition = p.parseExpression(precedenceLowest)
 
 	if !p.expectPeek(tokens.TypeRParen) {
 		p.logger.Debug("expected ) after while condition, got %s instead", p.peekToken.Type)
@@ -571,9 +572,9 @@ func (p *Parser) parseExpressionWhile() ast.Expression {
 		return nil
 	}
 
-	expr.Body = p.parseBlockStatement()
+	stmt.Body = p.parseBlockStatement()
 
-	return expr
+	return stmt
 }
 
 func (p *Parser) parseExpressionKeyword() ast.Expression {

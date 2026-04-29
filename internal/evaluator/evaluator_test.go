@@ -1586,3 +1586,150 @@ func TestEvaluatorEvalRebindStatements(t *testing.T) {
 		})
 	}
 }
+
+func TestEvaluatorEvalWhileLoops(t *testing.T) {
+	type testCase struct {
+		name     string
+		input    *ast.Program
+		expected objects.Object
+	}
+
+	tests := []testCase{
+		{
+			name: `
+				let i = 0;
+				while (i < 5) {
+					i = i + 1;
+				}
+
+				i;`,
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementBind{
+						Token: tokens.New(tokens.TypeBind, "let"),
+						Name: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "i"),
+							Value: "i",
+						},
+						Value: &ast.ExpressionLiteralInteger{Value: 0},
+					},
+					&ast.StatementWhile{
+						Token: tokens.New(tokens.TypeWhile, "while"),
+						Condition: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeLT, "<"),
+							Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+							Right:    &ast.ExpressionLiteralInteger{Value: 5},
+							Operator: "<",
+						},
+						Body: &ast.StatementBlock{
+							Statements: []ast.Statement{
+								&ast.StatementRebind{
+									Token: tokens.New(tokens.TypeIdent, "i"),
+									Name: &ast.ExpressionIdentifier{
+										Token: tokens.New(tokens.TypeIdent, "i"),
+										Value: "i",
+									},
+									Value: &ast.ExpressionInfix{
+										Token:    tokens.New(tokens.TypePlus, "+"),
+										Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+										Right:    &ast.ExpressionLiteralInteger{Value: 1},
+										Operator: "+",
+									},
+								},
+							},
+						},
+					},
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeIdent, "i"),
+						Expression: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "i"),
+							Value: "i",
+						},
+					},
+				},
+			},
+			expected: &objects.Integer{Value: 5},
+		},
+		{
+			name: `double while loop
+				let i = 0;
+				while (i < 5) {
+					while (i < 5) {
+						i = i + 1;
+					}
+				}
+
+				i;
+			`,
+			input: &ast.Program{
+				Statements: []ast.Statement{
+					&ast.StatementBind{
+						Token: tokens.New(tokens.TypeBind, "let"),
+						Name: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "i"),
+							Value: "i",
+						},
+						Value: &ast.ExpressionLiteralInteger{Value: 0},
+					},
+					&ast.StatementWhile{
+						Token: tokens.New(tokens.TypeWhile, "while"),
+						Condition: &ast.ExpressionInfix{
+							Token:    tokens.New(tokens.TypeLT, "<"),
+							Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+							Right:    &ast.ExpressionLiteralInteger{Value: 5},
+							Operator: "<",
+						},
+						Body: &ast.StatementBlock{
+							Statements: []ast.Statement{
+								&ast.StatementWhile{
+									Token: tokens.New(tokens.TypeWhile, "while"),
+									Condition: &ast.ExpressionInfix{
+										Token:    tokens.New(tokens.TypeLT, "<"),
+										Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+										Right:    &ast.ExpressionLiteralInteger{Value: 5},
+										Operator: "<",
+									},
+									Body: &ast.StatementBlock{
+										Statements: []ast.Statement{
+											&ast.StatementRebind{
+												Token: tokens.New(tokens.TypeIdent, "i"),
+												Name: &ast.ExpressionIdentifier{
+													Token: tokens.New(tokens.TypeIdent, "i"),
+													Value: "i",
+												},
+												Value: &ast.ExpressionInfix{
+													Token:    tokens.New(tokens.TypePlus, "+"),
+													Left:     &ast.ExpressionIdentifier{Token: tokens.New(tokens.TypeIdent, "i"), Value: "i"},
+													Right:    &ast.ExpressionLiteralInteger{Value: 1},
+													Operator: "+",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+					&ast.StatementExpression{
+						Token: tokens.New(tokens.TypeIdent, "i"),
+						Expression: &ast.ExpressionIdentifier{
+							Token: tokens.New(tokens.TypeIdent, "i"),
+							Value: "i",
+						},
+					},
+				},
+			},
+			expected: &objects.Integer{Value: 5},
+		},
+	}
+
+	for i, tc := range tests {
+		t.Run(fmt.Sprintf("test %d: %s", i, tc.name), func(t *testing.T) {
+			evaluator := New(nil)
+			result := evaluator.Eval(tc.input, objects.NewEnvironment())
+
+			assert.Equal(t, tc.expected.Type(), result.Type())
+			assert.Equal(t, tc.expected.Inspect(), result.Inspect())
+		})
+	}
+}
