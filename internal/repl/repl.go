@@ -99,7 +99,8 @@ func (r *Repl) Start() {
 
 		// now we have a valid AST, we can evaluate it and print the result
 		e := evaluator.New(r.logger)
-		result := e.Eval(program, objects.NewEnclosedEnvironment(env))
+		env = objects.NewEnclosedEnvironment(env)
+		result := e.Eval(program, env)
 		if result != nil {
 			if _, err := r.out.Write([]byte(result.Inspect() + "\n")); err != nil {
 				r.logger.Error("failed to write evaluation result", "error", err)
