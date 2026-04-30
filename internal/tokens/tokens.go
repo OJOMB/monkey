@@ -67,6 +67,10 @@ const (
 	TypeLogicalAnd Type = "&&"
 	// TypeLogicalOr represents the logical or operator token.
 	TypeLogicalOr Type = "||"
+	/// TypeIncrement represents the increment operator token.
+	TypeIncrement Type = "++"
+	// TypeDecrement represents the decrement operator token.
+	TypeDecrement Type = "--"
 
 	///////////////
 	// keywords //

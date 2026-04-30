@@ -74,11 +74,12 @@ loops:
 ```donkey
 var i = 0;
 while (i < 10) {
-    print(i);
     i = i + 1;
 }
 
-for (var j = 0; j < 10; j = j + 1) {
-    print(j);
+print(i); // prints 10
+
+for (var j = 0; j < 10; j++) {
+    print(j); // prints 0 through 9
 }
 ```

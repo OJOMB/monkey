@@ -128,6 +128,12 @@ func (p *Parser) parseStatement() ast.Statement {
 	case tokens.TypeFor:
 		return p.parseStatementFor()
 	default:
+		// <IDENT><INCREMENT> or <IDENT><DECREMENT>
+		if p.isIncrementOrDecrement() {
+			// here we have an identifier followed by an increment or decrement token, so we can assume this is an increment or decrement statement like foo++ or bar--;
+			return p.parseStatementReBind()
+		}
+
 		if p.peekToken.Type == tokens.TypeAssign {
 			// here we have an identifier followed by an assign token
 			// so we can assume this is a rebind statement like foo = 5; or bar = "hello";
@@ -140,6 +146,11 @@ func (p *Parser) parseStatement() ast.Statement {
 	}
 
 	return stmt
+}
+
+func (p *Parser) isIncrementOrDecrement() bool {
+	return (p.currToken.Type == tokens.TypeIdent && p.peekToken.Type == tokens.TypeIncrement) ||
+		(p.currToken.Type == tokens.TypeIdent && p.peekToken.Type == tokens.TypeDecrement)
 }
 
 // parseStatementLet parses a var statement and returns an ast.LetStatement node.
@@ -459,7 +470,6 @@ func (p *Parser) parseCallArguments() []ast.Expression {
 
 	return args
 }
-
 func (p *Parser) parseBlockStatement() *ast.StatementBlock {
 	block := &ast.StatementBlock{Statements: make([]ast.Statement, 0)}
 
@@ -524,15 +534,14 @@ func (p *Parser) parseFunctionParameters() []*ast.ExpressionIdentifier {
 
 func (p *Parser) parseStatementReBind() *ast.StatementRebind {
 	if p.peekToken.Type != tokens.TypeAssign {
+		if p.isIncrementOrDecrement() {
+			return p.desugarIncrementDecrement()
+		}
+
 		return nil
 	}
 
 	reBind := &ast.StatementRebind{Token: p.currToken}
-
-	// the current token should be the identifier being rebound, and the peek token should be the assign token
-	if p.currToken.Type != tokens.TypeIdent {
-		return nil
-	}
 
 	reBind.Name = &ast.ExpressionIdentifier{
 		Token: p.currToken,
@@ -544,6 +553,59 @@ func (p *Parser) parseStatementReBind() *ast.StatementRebind {
 
 	reBind.Value = p.parseExpression(precedenceLowest)
 	if reBind.Value == nil {
+		return nil
+	}
+
+	if !p.expectPeek(tokens.TypeSemicolon) {
+		p.logger.Debug("expected ; after rebind expression, got %s instead", p.peekToken.Type)
+		return nil
+	}
+
+	return reBind
+}
+
+func (p *Parser) desugarIncrementDecrement() *ast.StatementRebind {
+	// here we want to take a statement like foo++ and desugar it to foo = foo + 1
+	// or take a statement like bar-- and desugar it to bar = bar - 1
+	ident := &ast.ExpressionIdentifier{
+		Token: p.currToken,
+		Value: p.currToken.Lexeme,
+	}
+
+	var operator string
+	var operatorType tokens.Type
+	switch p.peekToken.Type {
+	case tokens.TypeIncrement:
+		operator = "+"
+		operatorType = tokens.TypePlus
+	case tokens.TypeDecrement:
+		operator = "-"
+		operatorType = tokens.TypeMinus
+	default:
+		return nil
+	}
+
+	infixExpr := &ast.ExpressionInfix{
+		Token:    tokens.New(operatorType, operator),
+		Operator: operator,
+		Left:     ident,
+		Right: &ast.ExpressionLiteralInteger{
+			Token: tokens.Token{Type: tokens.TypeInt, Lexeme: "1"},
+			Value: 1,
+		},
+	}
+
+	reBind := &ast.StatementRebind{
+		Token: p.currToken,
+		Name:  ident,
+		Value: infixExpr,
+	}
+
+	// we need to advance the tokens past the increment or decrement token
+	p.nextToken() // advance to the increment or decrement token
+
+	if !p.expectPeek(tokens.TypeSemicolon) {
+		p.logger.Debug("expected ; after increment/decrement expression, got %s instead", p.peekToken.Type)
 		return nil
 	}
 
@@ -577,7 +639,6 @@ func (p *Parser) parseStatementWhile() ast.Statement {
 
 	return stmt
 }
-
 func (p *Parser) parseStatementFor() ast.Statement {
 	stmt := &ast.StatementFor{
 		Token: p.currToken,

@@ -45,9 +45,7 @@ func TestNextToken(t *testing.T) {
 				}
 
 				var result = add(five, ten);
-
 				var exponent = 2 ^ 3;
-
 				var bitwiseAnd = 5 & 3;
 				var bitwiseOr = 5 | 3;
 				var logicalAnd = true && false;
@@ -55,7 +53,6 @@ func TestNextToken(t *testing.T) {
 
 				while (result > 10) {
 					result = result - 1;
-
 					if (result == 10) {
 						break;
 					}
@@ -63,6 +60,8 @@ func TestNextToken(t *testing.T) {
 					continue;
 				}
 
+				x++;
+				y--;
 				`,
 			expectedOutput: []tokens.Token{
 				{Type: tokens.TypeBind, Lexeme: "var"},
@@ -264,6 +263,13 @@ func TestNextToken(t *testing.T) {
 				{Type: tokens.TypeContinue, Lexeme: "continue"},
 				{Type: tokens.TypeSemicolon, Lexeme: ";"},
 				{Type: tokens.TypeRBrace, Lexeme: "}"},
+
+				{Type: tokens.TypeIdent, Lexeme: "x"},
+				{Type: tokens.TypeIncrement, Lexeme: "++"},
+				{Type: tokens.TypeSemicolon, Lexeme: ";"},
+				{Type: tokens.TypeIdent, Lexeme: "y"},
+				{Type: tokens.TypeDecrement, Lexeme: "--"},
+				{Type: tokens.TypeSemicolon, Lexeme: ";"},
 
 				{Type: tokens.TypeEOF, Lexeme: ""},
 			},

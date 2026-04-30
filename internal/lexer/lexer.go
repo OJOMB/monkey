@@ -60,8 +60,22 @@ func (l *Lexer) NextToken() tokens.Token {
 	case ',':
 		tok = tokens.New(tokens.TypeComma, ",")
 	case '+':
+		// check if we have an increment operator
+		if l.peekChar() == '+' {
+			l.readChar()
+			tok = tokens.New(tokens.TypeIncrement, "++")
+			break
+		}
+
 		tok = tokens.New(tokens.TypePlus, "+")
 	case '-':
+		// check if we have a decrement operator
+		if l.peekChar() == '-' {
+			l.readChar()
+			tok = tokens.New(tokens.TypeDecrement, "--")
+			break
+		}
+
 		tok = tokens.New(tokens.TypeMinus, "-")
 	case '<':
 		if l.peekChar() == '=' {
